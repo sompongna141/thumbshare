@@ -31,6 +31,7 @@ POLLINATIONS_ALLOW_MOCK=false
 - **API route:** `POST /api/generate/concepts` — accepts `{ brief, clientKey }`, returns `ConceptGenerationResult`
 - **API route:** `GET /api/pollinations/models` — returns available Pollinations image models
 - **API route:** `GET /api/config` — returns runtime config (mock enabled, app key presence) without leaking secrets
+- `not-found.tsx` — friendly 404 page with redirect
 - **BYOP auth:** User authenticates via Pollinations OAuth at `auth.pollinations.ai`, token returned in URL hash as `api_key=`, stored in localStorage
 - **Image previews:** Built client-side as Pollinations image URLs with `?key=` for auth
 - **Export:** JSON download + clipboard copy + print-friendly CSS
@@ -58,10 +59,13 @@ npm run dev         # Dev server on port 3100
 
 - [x] Build passes
 - [x] Lint/typecheck passes
-- [x] Test suite passes (24/24)
+- [x] Test suite passes (29/29)
 - [x] BYOP auth flow UI present (connect → disconnect)
 - [x] Export features work (JSON, clipboard, print)
 - [x] Error states are handled gracefully
+- [x] Security headers configured (nosniff, frame deny, referrer policy)
+- [x] OG/Twitter meta tags present for social sharing
+- [x] Image retry available on failed loads
 - [x] Sample briefs cover multiple niches (6: marketing, tech, travel, gaming, finance, family)
 - [x] No hidden owner spend key in production runtime
 - [ ] Core workflow tested end-to-end with real BYOP key (external dependency)

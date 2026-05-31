@@ -2,9 +2,9 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-05-31T18:50:00Z",
-  "summary": "Fixed stale .next/types tsconfig noise; removed tsconfig include of .next/types to eliminate persistent lint errors. Added /api/config route for runtime config exposure. Added per-concept regeneration brief injection to improve variation on regenerate. Added 7 mock-mode tests. Updated DEPLOY.md with accurate test count and architecture. Wrote QA-SCENARIOS.md with 6 end-to-end test scenarios for human/manual validation.",
-  "currentFocus": "Deploy readiness. Everything passes (build, lint, 24/24 tests). Remaining: human-provided GitHub/Vercel credentials + real BYOP key for final smoke test.",
+  "updatedAt": "2026-05-31T19:48:00Z",
+  "summary": "Fixed image error state bug on regeneration (imgErrorMap now cleared when regenerating). Added image retry button in fallback UI. Added security headers (nosniff, DENY frame, referrer policy) and unoptimized images config in next.config.ts. Added Open Graph + Twitter meta tags in layout.tsx. Added 404 page. Build, lint, tests all clean.",
+  "currentFocus": "Deploy readiness. Everything passes (build, lint, 29/29 tests). Remaining: human-provided GitHub/Vercel credentials + real BYOP key for final smoke test.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",

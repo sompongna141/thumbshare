@@ -1,4 +1,26 @@
 
+## 2026-05-31 19:45 UTC
+
+**Focus:** Fix image error bug + add retry UI + security headers + OG meta + 404 page.
+
+- **Fixed image error state on regeneration:** `imgErrorMap` was not cleared when regenerating a concept, so a previously failed image would stay in the fallback state even after regeneration produced a new image prompt. Fixed by adding `setImgErrorMap((prev) => ({ ...prev, [id]: false }))` at the start of `handleRegenerate`.
+- **Added image retry button:** When an image fails to load (model unavailable, network blip), the fallback card now shows a "Retry image" button that clears the error state and re-attempts the same URL.
+- **Security headers in next.config.ts:** Added `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` via Next.js headers config.
+- **Unoptimized images config:** Added `images: { unoptimized: true }` to avoid Next.js Image Optimization dependency issues on Vercel free tier.
+- **Open Graph + Twitter meta tags:** Added `openGraph` and `twitter` metadata objects in `layout.tsx` for better social sharing.
+- **404 page:** Created `not-found.tsx` with a friendly message and link back to the app.
+- **Git commit:** `da28abc`
+
+**Build, lint, 29/29 tests passing.**
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-05-31 18:45 UTC
 
 **Focus:** Unblock broken foundation (stale tsconfig lint noise) + deploy polish + QA coverage expansion.
