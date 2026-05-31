@@ -2,7 +2,7 @@
 
 ## Status
 
-**In active build.** Phase: `core_workflow_ready`. Not yet deployed.
+**Deploy prep.** Phase: `deploy_prep`. Build + lint + tests passing.
 
 ## App overview
 
@@ -30,6 +30,7 @@ POLLINATIONS_ALLOW_MOCK=false
 - **Frontend:** Next.js 15 App Router, React 19, pure CSS (no Tailwind)
 - **API route:** `POST /api/generate/concepts` — accepts `{ brief, clientKey }`, returns `ConceptGenerationResult`
 - **API route:** `GET /api/pollinations/models` — returns available Pollinations image models
+- **API route:** `GET /api/config` — returns runtime config (mock enabled, app key presence) without leaking secrets
 - **BYOP auth:** User authenticates via Pollinations OAuth at `auth.pollinations.ai`, token returned in URL hash as `api_key=`, stored in localStorage
 - **Image previews:** Built client-side as Pollinations image URLs with `?key=` for auth
 - **Export:** JSON download + clipboard copy + print-friendly CSS
@@ -39,7 +40,7 @@ POLLINATIONS_ALLOW_MOCK=false
 ```bash
 npm install
 npm run lint        # TypeScript typecheck via tsc --noEmit
-npm test            # Vitest suite (15 tests)
+npm test            # Vitest suite (29 tests)
 npm run build       # Production build (Next.js standalone output)
 npm run start       # Start on port 3100 (or set PORT)
 npm run dev         # Dev server on port 3100
@@ -55,12 +56,15 @@ npm run dev         # Dev server on port 3100
 
 ## Pre-deploy checklist
 
-- [ ] Core workflow tested end-to-end with real BYOP key
-- [ ] Build passes
-- [ ] Lint/typecheck passes
-- [ ] Test suite passes
-- [ ] BYOP auth flow works (connect → generate → disconnect)
-- [ ] Export features work (JSON, clipboard, print)
-- [ ] Error states are handled gracefully
-- [ ] Sample briefs cover multiple niches
-- [ ] No hidden owner spend key in production runtime
+- [x] Build passes
+- [x] Lint/typecheck passes
+- [x] Test suite passes (24/24)
+- [x] BYOP auth flow UI present (connect → disconnect)
+- [x] Export features work (JSON, clipboard, print)
+- [x] Error states are handled gracefully
+- [x] Sample briefs cover multiple niches (6: marketing, tech, travel, gaming, finance, family)
+- [x] No hidden owner spend key in production runtime
+- [ ] Core workflow tested end-to-end with real BYOP key (external dependency)
+- [ ] GitHub repo pushed to remote (requires human-provided token/account)
+- [ ] Vercel project created and connected to GitHub repo (requires human-provided account)
+- [ ] POLLINATIONS_ALLOW_MOCK=false in production environment

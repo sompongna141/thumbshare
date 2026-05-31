@@ -61,9 +61,13 @@
 ## Phase 7 — Deploy readiness
 
 - [x] write README.md for the app
-- [x] verify build / lint / typecheck / tests pass (24/24 passing)
+- [x] verify build / lint / typecheck / tests pass (29/29 passing)
 - [x] write DEPLOY.md with env and Vercel steps
 - [x] initialize dedicated git repo (main branch)
+- [x] add /api/config route for runtime config (mock enabled, app key)
+- [x] fix stale .next/types tsconfig noise
+- [x] add per-concept regeneration prompt injection
+- [x] add mock-mode QA scenarios
 - [ ] push git repo to GitHub remote (requires human-provided token/account)
 - [ ] create Vercel project and connect to GitHub repo (requires human-provided account)
 - [ ] validate end-to-end generation with real BYOP user key (external dependency)

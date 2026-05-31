@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!clientKey) {
+    const mockEnabled = process.env.POLLINATIONS_ALLOW_MOCK === "true";
+    if (!clientKey && !mockEnabled) {
       return NextResponse.json(
         { error: "Missing Pollinations user key" },
         { status: 401 }

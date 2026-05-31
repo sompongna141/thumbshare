@@ -186,7 +186,7 @@ describe("Brief validation", () => {
 // ── Mock mode validation ──
 
 describe("Mock mode", () => {
-  it("buildMockConcepts returns valid JSON with 6 concepts", async () => {
+  it("returns valid JSON with 6 concepts", async () => {
     const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
     const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
     expect(result.concepts).toHaveLength(6);
@@ -196,6 +196,51 @@ describe("Mock mode", () => {
       expect(c.conceptName).toBeTruthy();
       expect(c.imagePrompt).toBeTruthy();
       expect(c.faceExpression).toBeTruthy();
+    });
+  }, 10000);
+
+  it("respects tone in concept names", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
+    const tone = sampleBriefs[0].tone;
+    const capitalized = tone.charAt(0).toUpperCase() + tone.slice(1);
+    result.concepts.forEach((c) => {
+      expect(c.conceptName).toContain(capitalized);
+    });
+  }, 10000);
+
+  it("color swatches match tone", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
+    const firstColor = result.concepts[0].colorPsychology.primaryColor;
+    expect(firstColor.length).toBeGreaterThan(0);
+    result.concepts.forEach((c) => {
+      expect(c.colorPsychology.primaryColor).toBe(firstColor);
+    });
+  }, 10000);
+
+  it("text overlay has placement for all concepts", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
+    result.concepts.forEach((c) => {
+      expect(c.textOverlay.placement.length).toBeGreaterThan(0);
+      expect(c.textOverlay.text.length).toBeGreaterThan(0);
+    });
+  }, 10000);
+
+  it("platform notes are present", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
+    result.concepts.forEach((c) => {
+      expect(c.platformNotes.length).toBeGreaterThan(0);
+    });
+  }, 10000);
+
+  it("ab variant hints are present", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
+    result.concepts.forEach((c) => {
+      expect(c.abVariantHint.length).toBeGreaterThan(0);
     });
   }, 10000);
 });

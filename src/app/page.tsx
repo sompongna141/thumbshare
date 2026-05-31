@@ -178,10 +178,11 @@ export default function HomePage() {
   }
 
   const callApi = useCallback(
-    async (briefToGenerate: ThumbnailBrief, clientKey: string): Promise<ConceptGenerationResult> => {
+    async (briefToGenerate: ThumbnailBrief, clientKey: string | undefined, options?: { signal?: AbortSignal }): Promise<ConceptGenerationResult> => {
       const res = await fetch("/api/generate/concepts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: options?.signal,
         body: JSON.stringify({ brief: briefToGenerate, clientKey }),
       });
       if (!res.ok) {
@@ -216,11 +217,20 @@ export default function HomePage() {
     }
   }
 
+  function makeRegenBrief(original: ThumbnailBrief, conceptId: string): ThumbnailBrief {
+    const extra = `\n[REGENERATE] Only produce concept #${conceptId}, conceptName and imagePrompt must differ from prior version.`;
+    return {
+      ...original,
+      constraints: (original.constraints || "") + extra,
+    };
+  }
+
   async function handleRegenerate(id: string) {
     if (!byop.key) return;
     setRegenId(id);
     try {
-      const res = await callApi(brief, byop.key);
+      const regenBrief = makeRegenBrief(brief, id);
+      const res = await callApi(regenBrief, byop.key);
       const idx = parseInt(id, 10) - 1;
       if (result && res.concepts[idx]) {
         const next = { ...result, abPlan: res.abPlan || result.abPlan };
