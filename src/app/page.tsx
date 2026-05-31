@@ -672,9 +672,10 @@ function ConceptCard({
   starred: boolean;
   onToggleStar: () => void;
 }) {
+  const [retryCount, setRetryCount] = useState(0);
   const imageUrl = useMemo(
-    () => buildThumbnailImageUrl(concept.imagePrompt, clientKey, imageModel),
-    [concept.imagePrompt, clientKey, imageModel]
+    () => buildThumbnailImageUrl(concept.imagePrompt, clientKey, imageModel, retryCount),
+    [concept.imagePrompt, clientKey, imageModel, retryCount]
   );
   return (
     <div className="concept-card">
@@ -695,7 +696,7 @@ function ConceptCard({
                 ? `Model: ${imageModel}. Try switching models or regenerate.`
                 : "Connect Pollinations to generate previews."}
             </div>
-            <button className="btn small" onClick={onRetryImage}>Retry image</button>
+            <button className="btn small" onClick={() => { setRetryCount((prev) => prev + 1); onRetryImage(); }}>Retry image</button>
           </div>
         )}
       </div>

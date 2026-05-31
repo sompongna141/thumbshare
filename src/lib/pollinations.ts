@@ -72,12 +72,13 @@ export function extractJson(text: string): any {
   }
 }
 
-export function buildThumbnailImageUrl(prompt: string, key?: string, model = "flux"): string {
+export function buildThumbnailImageUrl(prompt: string, key?: string, model = "flux", retryCount = 0): string {
   const maxPromptChars = 1500;
   const safePrompt = prompt.length > maxPromptChars ? prompt.slice(0, maxPromptChars) + "..." : prompt;
   const base = "https://gen.pollinations.ai/image/";
   const encoded = encodeURIComponent(safePrompt);
-  const url = `${base}${encoded}?width=1280&height=720&seed=${Math.floor(Math.random() * 1000000)}&model=${encodeURIComponent(model)}`;
+  const seed = Math.floor(Math.random() * 1000000) + retryCount * 1000000;
+  const url = `${base}${encoded}?width=1280&height=720&seed=${seed}&model=${encodeURIComponent(model)}`;
   if (key) return `${url}&key=${encodeURIComponent(key)}`;
   return url;
 }
@@ -140,7 +141,12 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
   const toneInfo = tones[brief.tone] || tones.curiosity;
   const concepts = Array.from({ length: 6 }, (_, i) => ({
     id: String(i + 1),
-    conceptName: `${brief.tone.charAt(0).toUpperCase() + brief.tone.slice(1)} Close-Up ${i + 1}`,
+    conceptName: (() => {
+      const words = brief.videoTitle.split(/\s+/).filter(w => w.length > 2);
+      const keyword = words.slice(0, 2).join(" ");
+      const variants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip"];
+      return `${keyword || brief.tone} ${variants[i] || `Variant ${i + 1}`}`;
+    })(),
     imagePrompt: `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, bold text overlay, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`,
     faceExpression: toneInfo.expr,
     textOverlay: {

@@ -129,6 +129,20 @@ describe("buildThumbnailImageUrl", () => {
     const b = buildThumbnailImageUrl("prompt b");
     expect(a).not.toBe(b);
   });
+
+  it("changes seed on retry", () => {
+    const url0 = buildThumbnailImageUrl("same prompt", undefined, "flux", 0);
+    const url1 = buildThumbnailImageUrl("same prompt", undefined, "flux", 1);
+    expect(url0).not.toBe(url1);
+    const seed1 = Number(new URL(url1).searchParams.get("seed"));
+    expect(seed1).toBeGreaterThanOrEqual(1000000);
+    expect(seed1).toBeLessThan(2000000);
+  });
+
+  it("key param is properly URL-encoded", () => {
+    const url = buildThumbnailImageUrl("test", "sk_key/with+special=chars");
+    expect(url).toContain(encodeURIComponent("sk_key/with+special=chars"));
+  });
 });
 
 // ── Concept shape ──
@@ -199,14 +213,19 @@ describe("Mock mode", () => {
     });
   }, 10000);
 
-  it("respects tone in concept names", async () => {
+  it("derives concept names from video title keywords", async () => {
     const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
     const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");
-    const tone = sampleBriefs[0].tone;
-    const capitalized = tone.charAt(0).toUpperCase() + tone.slice(1);
+    const keywords = sampleBriefs[0].videoTitle.split(/\s+/).filter(w => w.length > 2).slice(0, 2).join(" ");
     result.concepts.forEach((c) => {
-      expect(c.conceptName).toContain(capitalized);
+      expect(c.conceptName.length).toBeGreaterThan(5);
+      expect(c.conceptName).not.toContain("Close-Up");
     });
+    // At least one concept should contain a significant keyword from the title
+    const hasKeyword = result.concepts.some((c) =>
+      keywords.split(/\s+/).some((kw) => c.conceptName.toLowerCase().includes(kw.toLowerCase().replace(/[^a-z]/g, "")))
+    );
+    expect(hasKeyword).toBe(true);
   }, 10000);
 
   it("color swatches match tone", async () => {
