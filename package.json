@@ -6,7 +6,7 @@
     "dev": "next dev -p 3100",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit --project tsconfig.lint.json",
     "test": "vitest run"
   },
   "dependencies": {
