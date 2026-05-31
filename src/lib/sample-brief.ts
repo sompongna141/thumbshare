@@ -1,0 +1,67 @@
+import { ThumbnailBrief } from "./types";
+
+export const sampleBriefs: ThumbnailBrief[] = [
+  {
+    videoTitle: "I Spent $10,000 on TikTok Ads So You Don't Have To",
+    angle: "Expose the real cost and mistakes behind TikTok ad campaigns",
+    topicCategory: "Marketing / Business",
+    targetAudience: "Small business owners and creators considering TikTok ads",
+    tone: "dramatic",
+    channelContext: "Channel covers paid media strategy and ad buying case studies",
+    constraints: "Avoid showing dollar bills; focus on a laptop screen or phone screen with a shocked face",
+  },
+  {
+    videoTitle: "This $50 Gadget Replaced My $2,000 Desk Setup",
+    angle: "Budget tech upgrade that beats expensive gear",
+    topicCategory: "Tech / Productivity",
+    targetAudience: "Remote workers and tech enthusiasts on a budget",
+    tone: "curiosity",
+    channelContext: "Minimalist desk setup channel",
+    constraints: "Show the gadget in hand next to the old expensive gear for visual contrast",
+  },
+  {
+    videoTitle: "My Dog Ate My Passport 24 Hours Before My Flight",
+    angle: "Travel disaster story with emotional resolution",
+    topicCategory: "Travel / Lifestyle",
+    targetAudience: "Travel vlog watchers and pet owners",
+    tone: "emotional",
+    channelContext: "Travel storytime channel with a golden retriever co-host",
+    constraints: "Show a passport with a bite mark and a guilty-looking dog face",
+  },
+  {
+    videoTitle: "I Played Minecraft Hardcore for 100 Days — Here's What Happened",
+    angle: "Extreme survival challenge with dramatic milestones",
+    topicCategory: "Gaming",
+    targetAudience: "Minecraft and survival gaming fans",
+    tone: "dramatic",
+    channelContext: "Gaming challenge channel focusing on survival modes",
+    constraints: "Show the player character in diamond armor standing in front of a massive build, day counter visible",
+  },
+  {
+    videoTitle: "Why Every Finance YouTuber Is Wrong About Index Funds",
+    angle: "Contrarian take on passive investing wisdom",
+    topicCategory: "Finance / Investing",
+    targetAudience: "Retail investors and finance-curious millennials",
+    tone: "controversial",
+    channelContext: "Personal finance channel that debunks money myths",
+    constraints: "Use a red X over a chart line, no real financial documents or logos",
+  },
+  {
+    videoTitle: "I Let My 5-Year-Old Plan Our Entire Vacation",
+    angle: "Kids making adult decisions — chaotic but wholesome",
+    topicCategory: "Family / Lifestyle",
+    targetAudience: "Parents and family content viewers",
+    tone: "funny",
+    channelContext: "Family vlog with two kids, wholesome chaos energy",
+    constraints: "Show a child holding a map upside down with a confused parent in the background",
+  },
+];
+
+export const sampleBriefLabels: string[] = [
+  "Marketing",
+  "Tech",
+  "Travel",
+  "Gaming",
+  "Finance",
+  "Family",
+];

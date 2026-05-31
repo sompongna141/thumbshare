@@ -1,0 +1,66 @@
+# ThumbSnare — Deploy Notes
+
+## Status
+
+**In active build.** Phase: `core_workflow_ready`. Not yet deployed.
+
+## App overview
+
+ThumbSnare is a YouTube thumbnail strategy workstation. Users enter a video brief and get 6 structured thumbnail concept packs with image prompts, face expressions, text overlays, color psychology, A/B test plans, and platform notes. Concepts are generated via the Pollinations text API and previewed via Pollinations image URLs.
+
+## Expected env vars
+
+```bash
+# Publishable app key for Pollinations BYOP — used as the OAuth client_id
+# This is NOT a spend key.
+NEXT_PUBLIC_POLLINATIONS_APP_KEY=pk_...
+
+# Text model for concept generation (default: openai)
+POLLINATIONS_TEXT_MODEL=openai
+
+# Optional: server-side fallback API key (only for testing)
+# POLLINATIONS_API_KEY=
+
+# Development mock fallback — must be "false" in production
+POLLINATIONS_ALLOW_MOCK=false
+```
+
+## Architecture
+
+- **Frontend:** Next.js 15 App Router, React 19, pure CSS (no Tailwind)
+- **API route:** `POST /api/generate/concepts` — accepts `{ brief, clientKey }`, returns `ConceptGenerationResult`
+- **API route:** `GET /api/pollinations/models` — returns available Pollinations image models
+- **BYOP auth:** User authenticates via Pollinations OAuth at `auth.pollinations.ai`, token returned in URL hash as `api_key=`, stored in localStorage
+- **Image previews:** Built client-side as Pollinations image URLs with `?key=` for auth
+- **Export:** JSON download + clipboard copy + print-friendly CSS
+
+## Build + test commands
+
+```bash
+npm install
+npm run lint        # TypeScript typecheck via tsc --noEmit
+npm test            # Vitest suite (15 tests)
+npm run build       # Production build (Next.js standalone output)
+npm run start       # Start on port 3100 (or set PORT)
+npm run dev         # Dev server on port 3100
+```
+
+## Deployment model
+
+- One Vercel project for this app only
+- Separate Vercel account per app (per portfolio policy)
+- Standalone output enabled (`output: "standalone"` in next.config.ts)
+- No auto-deploy until human provides account details
+- Env vars must be set in Vercel project settings before first deploy
+
+## Pre-deploy checklist
+
+- [ ] Core workflow tested end-to-end with real BYOP key
+- [ ] Build passes
+- [ ] Lint/typecheck passes
+- [ ] Test suite passes
+- [ ] BYOP auth flow works (connect → generate → disconnect)
+- [ ] Export features work (JSON, clipboard, print)
+- [ ] Error states are handled gracefully
+- [ ] Sample briefs cover multiple niches
+- [ ] No hidden owner spend key in production runtime

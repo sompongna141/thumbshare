@@ -1,0 +1,33 @@
+{
+  "slug": "youtube-thumbnail-studio",
+  "status": "active_build",
+  "phase": "ux_polish_and_qa",
+  "updatedAt": "2026-05-31T16:52:00Z",
+  "summary": "Build passing, lint clean, 24/24 tests passing. Added concept starring/shortlist, brief history persistence, image model persistence, and fixed extractJson crash vulnerability. UX now supports starring concepts, copying/exporting only starred ones, reloading past briefs from history, and remembering the selected image model across sessions.",
+  "currentFocus": "End-to-end generation validation with real BYOP user key still pending. All infrastructure, UI, UX features, tests, and dev-mode mocks are ready. App is functionally complete for deploy readiness pending live validation.",
+  "nextTasks": [
+    "Validate end-to-end generation with real BYOP user key (blocker)",
+    "Create GitHub repo and connect to Vercel",
+    "Final QA pass once real key validates"
+  ],
+  "blockers": [
+    "Need real Pollinations user key to fully validate generation end-to-end. Mock mode provides safe dev testing but does not replace live API quality validation."
+  ],
+  "quality": {
+    "coreWorkflowWorking": true,
+    "buildPassing": true,
+    "testsPassing": true,
+    "docsReady": true,
+    "deployReady": false,
+    "deployed": false,
+    "githubPublished": false
+  },
+  "knownLimitations": [
+    "Image quality depends on user's Pollinations key budget and prompt scaffolding.",
+    "Face expression control via text-to-image is approximate.",
+    "No channel brand memory or persistent user accounts.",
+    "Concept regeneration replaces a single concept from a fresh 6-pack; exact targeting not guaranteed.",
+    "End-to-end generation quality not yet validated with real Pollinations user key.",
+    "Mock mode produces tone-aware placeholder concepts for safe dev testing but does not exercise live LLM quality."
+  ]
+}
