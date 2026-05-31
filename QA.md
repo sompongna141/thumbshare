@@ -30,7 +30,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (24/24 Vitest tests)
+- [x] test suite passes (29/29 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated, not hardcoded fallback
@@ -49,6 +49,10 @@
 - [x] Mock mode returns 6 structurally valid concepts without real key
 - [x] Mock mode A/B plan is tailored to tone and brief
 - [x] Mock mode activates when `POLLINATIONS_ALLOW_MOCK=true` and no key present
+- [x] Mock mode tone reflected in concept names
+- [x] Mock mode color swatches are consistent across 6 concepts
+- [x] Mock mode text overlays have placement and text for all concepts
+- [x] Mock mode platform notes and AB hints present for all concepts
 
 ## Remaining validation items
 
@@ -56,9 +60,10 @@ These require a real Pollinations user key and/or production deployment to confi
 
 1. End-to-end concept generation returns valid JSON with 6 concepts via live LLM
 2. Image preview URLs load successfully with authenticated key on gen.pollinations.ai/image/
-3. Per-concept regeneration replaces the targeted concept via live API
+3. Per-concept regeneration replaces the targeted concept via live API (prompt injection added, needs live validation)
 4. Export (JSON + clipboard + print) produces correct output in production
 5. Generated prompt quality meets the "better than raw prompting" bar with live LLM
 6. Live image model switching works across different model names from live model list
 7. BYOP auth flow works in production (OAuth callback, key storage, disconnect)
 8. Production env has POLLINATIONS_ALLOW_MOCK=false
+9. /api/config route returns correct runtime config without leaking secrets
