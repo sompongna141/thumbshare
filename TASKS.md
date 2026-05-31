@@ -43,22 +43,29 @@
 - [x] add empty / loading / error states (skeleton loader, error banner, empty state)
 - [x] add sample briefs across niches (marketing, tech, travel, gaming, finance, family)
 - [x] tighten prompt scaffolding (anti-generic word filter, YouTube-specific rules)
-- [x] add lightweight automated tests (15 tests passing)
+- [x] add lightweight automated tests (24/24 Vitest tests passing)
 - [x] add mock generation QA fixtures
 
-## Phase 6 — Deploy readiness
-
-- [ ] validate end-to-end generation with real BYOP user key
-- [x] write README.md for the app
-- [x] verify build / lint / typecheck / tests pass (18/18 passing)
-- [x] write DEPLOY.md with env and Vercel steps
-- [ ] create GitHub repo and connect to Vercel
-- [ ] mark deploy readiness in state files
-
-## Phase 6b — Robustness & dev experience
+## Phase 6 — Robustness & dev experience
 
 - [x] fix image URL builder (remove nologo, add model param, prompt truncation)
 - [x] wire live image model selector using /api/pollinations/models
 - [x] add image error fallback UI (replace display:none with helpful fallback card)
 - [x] add realistic mock mode for safe dev testing without credits
-- [x] add test for mock mode generation
+- [x] fix extractJson crash vulnerability (descriptive errors, API route handles gracefully)
+- [x] add concept starring + shortlist with copy/export actions
+- [x] add brief history persistence (localStorage, max 10, deduplicated)
+- [x] add image model persistence (localStorage)
+- [x] align Pollinations API to unified gen.pollinations.ai endpoints (text + image + models)
+
+## Phase 7 — Deploy readiness
+
+- [x] write README.md for the app
+- [x] verify build / lint / typecheck / tests pass (24/24 passing)
+- [x] write DEPLOY.md with env and Vercel steps
+- [x] initialize dedicated git repo (main branch)
+- [ ] push git repo to GitHub remote (requires human-provided token/account)
+- [ ] create Vercel project and connect to GitHub repo (requires human-provided account)
+- [ ] validate end-to-end generation with real BYOP user key (external dependency)
+- [ ] set POLLINATIONS_ALLOW_MOCK=false in production environment
+- [ ] mark deploy readiness in state files

@@ -1,16 +1,18 @@
 {
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
-  "phase": "ux_polish_and_qa",
-  "updatedAt": "2026-05-31T16:52:00Z",
-  "summary": "Build passing, lint clean, 24/24 tests passing. Added concept starring/shortlist, brief history persistence, image model persistence, and fixed extractJson crash vulnerability. UX now supports starring concepts, copying/exporting only starred ones, reloading past briefs from history, and remembering the selected image model across sessions.",
-  "currentFocus": "End-to-end generation validation with real BYOP user key still pending. All infrastructure, UI, UX features, tests, and dev-mode mocks are ready. App is functionally complete for deploy readiness pending live validation.",
+  "phase": "deploy_prep",
+  "updatedAt": "2026-05-31T17:50:00Z",
+  "summary": "Fixed Pollinations API endpoint drift: migrated text calls to gen.pollinations.ai/openai/chat/completions with Bearer auth, image URLs to gen.pollinations.ai/image/, and model discovery to gen.pollinations.ai/image/models. Updated tests to match new paths. Re-enabled mock mode for safe dev testing. Build passes, 24/24 tests pass. Initialized dedicated git repo on main branch.",
+  "currentFocus": "Prepare for deployment: repo initialized, API aligned to current Pollinations unified API. Next steps require human-provided GitHub remote + Vercel project, and a real BYOP user key for final end-to-end smoke test.",
   "nextTasks": [
-    "Validate end-to-end generation with real BYOP user key (blocker)",
-    "Create GitHub repo and connect to Vercel",
-    "Final QA pass once real key validates"
+    "Push git repo to GitHub remote (requires human-provided token/account)",
+    "Create Vercel project and connect to GitHub repo (requires human-provided account)",
+    "Validate end-to-end generation with real BYOP user key (external dependency)",
+    "Set POLLINATIONS_ALLOW_MOCK=false in production environment"
   ],
   "blockers": [
+    "Need human-provided GitHub remote / Vercel account details to publish repo and create production project.",
     "Need real Pollinations user key to fully validate generation end-to-end. Mock mode provides safe dev testing but does not replace live API quality validation."
   ],
   "quality": {

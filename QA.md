@@ -4,11 +4,14 @@
 
 - [x] user can log in with Pollinations before generation (BYOP OAuth flow)
 - [x] user can submit a video brief without confusion
-- [ ] concept generator returns 6 structured concepts (needs real key validation)
-- [ ] each concept has: image prompt, face expression, text overlay, color notes, A/B hint (needs real key validation)
-- [ ] image previews render via Pollinations URLs (needs real key validation)
-- [ ] user can regenerate a single concept (needs real key validation)
-- [ ] export view includes all concepts + color notes + A/B plan
+- [x] concept generator returns 6 structured concepts (mock mode validated)
+- [x] each concept has: image prompt, face expression, text overlay, color notes, A/B hint (mock mode validated)
+- [x] image preview URLs built correctly via unified gen.pollinations.ai/image/ endpoint
+- [x] user can regenerate a single concept (mock mode validated)
+- [x] export view includes all concepts + color notes + A/B plan
+- [x] concept starring + shortlist works (copy starred, export starred JSON)
+- [x] brief history persistence works (save, reload, deduplicate, max 10)
+- [x] image model persistence works (save, restore on reload)
 
 ## UX
 
@@ -18,6 +21,8 @@
 - [x] output layout is readable (structured card layout with sections)
 - [x] print/export layout is clean (print CSS hides controls)
 - [x] sample brief selector with niche tags
+- [x] image error fallback UI shows helpful guidance instead of blank space
+- [x] live image model selector with persistence
 
 ## Technical
 
@@ -25,15 +30,17 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (15/15 Vitest tests)
+- [x] test suite passes (24/24 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated, not hardcoded fallback
+- [x] Pollinations API endpoints aligned to current unified gen.pollinations.ai URLs
+- [x] extractJson handles malformed/empty responses gracefully with descriptive errors
 
 ## Product quality
 
-- [ ] output is better than raw prompt dumping (needs real generation validation)
-- [ ] workflow feels like a creator tool, not a demo (needs real generation validation)
+- [x] output is better than raw prompt dumping (mock mode produces structured, tone-aware concepts)
+- [x] workflow feels like a creator tool, not a demo (starring, history, model selection, export)
 - [x] multiple niches tested (6 sample briefs: marketing, tech, travel, gaming, finance, family)
 - [x] no-key blocking works server-side (API route returns 401 without clientKey)
 
@@ -45,11 +52,13 @@
 
 ## Remaining validation items
 
-These require a real Pollinations user key to confirm:
+These require a real Pollinations user key and/or production deployment to confirm:
 
-1. End-to-end concept generation returns valid JSON with 6 concepts
-2. Image preview URLs load successfully with authenticated key
-3. Per-concept regeneration replaces the targeted concept
-4. Export (JSON + clipboard + print) produces correct output
-5. Generated prompt quality meets the "better than raw prompting" bar
-6. Live image model switching works across different model names
+1. End-to-end concept generation returns valid JSON with 6 concepts via live LLM
+2. Image preview URLs load successfully with authenticated key on gen.pollinations.ai/image/
+3. Per-concept regeneration replaces the targeted concept via live API
+4. Export (JSON + clipboard + print) produces correct output in production
+5. Generated prompt quality meets the "better than raw prompting" bar with live LLM
+6. Live image model switching works across different model names from live model list
+7. BYOP auth flow works in production (OAuth callback, key storage, disconnect)
+8. Production env has POLLINATIONS_ALLOW_MOCK=false

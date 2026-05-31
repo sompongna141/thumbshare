@@ -51,7 +51,7 @@
   - Improved BYOP panel with green dot glow on connected state.
   - A/B plan now prominently displayed above the grid with label.
   - "Load sample brief" button integrated into form header area.
-- **Sample briefs expanded:** 3→6 briefs covering marketing, tech, travel, gaming, finance, and family niches with `sampleBriefLabels` export.
+- **Sample briefs expanded:** 3→6 briefs covering marketing, tech, travel, gaming, finance, family niches with `sampleBriefLabels` export.
 - **Tests expanded:** 4→15 tests including brief validation, tone coverage, category diversity, concept shape verification, label-brief alignment, URL builder edge cases, and mock QA fixtures.
 - **DEPLOY.md rewritten:** Comprehensive with architecture overview, env vars, build commands, deploy model, and pre-deploy checklist.
 - **TASKS.md and QA.md updated** to reflect current progress.
@@ -89,3 +89,24 @@
 1. Validate end-to-end generation with a real Pollinations user key (still the primary blocker).
 2. Create GitHub repo and connect to Vercel.
 3. Final QA pass once real key validates.
+
+## 2026-05-31 17:45 UTC
+
+**Focus:** Unblock broken foundation (API drift) + deploy prep.
+
+- **Fixed Pollinations API endpoint drift:** Aligned all endpoints to the current unified `gen.pollinations.ai` API:
+  - Text generation: `https://text.pollinations.ai/openai/chat/completions?key=` → `https://gen.pollinations.ai/openai/chat/completions` with `Authorization: Bearer {key}` header.
+  - Image generation URLs: `https://image.pollinations.ai/prompt/` → `https://gen.pollinations.ai/image/`.
+  - Model discovery: `https://image.pollinations.ai/models` → `https://gen.pollinations.ai/image/models`.
+- **Tests updated:** Fixed URL builder test assertions to match new `image/` path. 24/24 tests passing.
+- **Mock mode re-enabled:** `POLLINATIONS_ALLOW_MOCK=true` in `.env.local` for safe dev/demos without credits.
+- **Build + lint clean:** Verified `next build` completes successfully with 6 static pages + 2 dynamic API routes.
+- **Git repo initialized:** Created dedicated local repo on `main` branch. Ready for remote push once human provides GitHub account.
+- **Live model list validated:** Fetched current image models from `gen.pollinations.ai/image/models` — received 30+ models including flux, gptimage, kontext, zimage, etc.
+- **App quality state:** Core workflow scaffolded, UI polished, tests green, docs complete, API aligned. Blocked only by external dependencies (GitHub/Vercel account + real BYOP key for final smoke test).
+
+**Phase advanced:** `ux_polish_and_qa` → `deploy_prep`.
+
+**Blockers updated:**
+1. Human-provided GitHub remote / Vercel account details needed to publish repo and create production project.
+2. Real Pollinations user key needed for final end-to-end smoke test. Mock mode covers dev/demos.
