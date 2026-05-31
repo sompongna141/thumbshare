@@ -228,6 +228,7 @@ export default function HomePage() {
   async function handleRegenerate(id: string) {
     if (!byop.key) return;
     setRegenId(id);
+    setImgErrorMap((prev) => ({ ...prev, [id]: false }));
     try {
       const regenBrief = makeRegenBrief(brief, id);
       const res = await callApi(regenBrief, byop.key);
@@ -329,6 +330,10 @@ export default function HomePage() {
       setCopied(c.id);
       setTimeout(() => setCopied(null), 2000);
     });
+  }
+
+  function handleRetryImage(id: string) {
+    setImgErrorMap((prev) => ({ ...prev, [id]: false }));
   }
 
   function handleExportJson() {
@@ -608,6 +613,7 @@ export default function HomePage() {
                 imageModel={selectedModel}
                 imageError={imgErrorMap[c.id] || false}
                 onImageError={() => setImgErrorMap((prev) => ({ ...prev, [c.id]: true }))}
+        onRetryImage={() => handleRetryImage(c.id)}
                 onRegenerate={handleRegenerate}
                 regenerating={regenId === c.id}
                 onCopy={handleCopyConcept}
@@ -645,6 +651,7 @@ function ConceptCard({
   imageModel,
   imageError,
   onImageError,
+  onRetryImage,
   onRegenerate,
   regenerating,
   onCopy,
@@ -657,6 +664,7 @@ function ConceptCard({
   imageModel: string;
   imageError: boolean;
   onImageError: () => void;
+  onRetryImage: () => void;
   onRegenerate: (id: string) => void;
   regenerating: boolean;
   onCopy: (c: ThumbnailConcept) => void;
@@ -687,6 +695,7 @@ function ConceptCard({
                 ? `Model: ${imageModel}. Try switching models or regenerate.`
                 : "Connect Pollinations to generate previews."}
             </div>
+            <button className="btn small" onClick={onRetryImage}>Retry image</button>
           </div>
         )}
       </div>

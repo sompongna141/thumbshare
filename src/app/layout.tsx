@@ -5,6 +5,17 @@ export const metadata: Metadata = {
   title: "ThumbSnare — YouTube Thumbnail Studio",
   description:
     "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs with prompts, color psychology, and A/B test variants.",
+  openGraph: {
+    title: "ThumbSnare — YouTube Thumbnail Studio",
+    description: "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs with prompts, color psychology, and A/B test variants.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ThumbSnare — YouTube Thumbnail Studio",
+    description: "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs.",
+  },
 };
 
 export default function RootLayout({
