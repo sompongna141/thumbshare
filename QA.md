@@ -6,7 +6,7 @@
 - [x] user can submit a video brief without confusion
 - [x] concept generator returns 6 structured concepts (mock mode validated)
 - [x] each concept has: image prompt, face expression, text overlay, color notes, A/B hint (mock mode validated)
-- [x] image preview URLs built correctly via unified gen.pollinations.ai/image/ endpoint
+- [x] image preview URLs built correctly via image.pollinations.ai/prompt/ endpoint (migrated from gen.pollinations.ai which returned 401)
 - [x] user can regenerate a single concept (mock mode validated)
 - [x] export view includes all concepts + color notes + A/B plan
 - [x] concept starring + shortlist works (copy starred, export starred JSON)
@@ -31,12 +31,12 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (36/36 Vitest tests)
+- [x] test suite passes (42/42 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
 - [x] prompt scaffolding includes anti-AI-slop rules, visual hierarchy, face expression taxonomy, typography rules, and YouTube CTR best practices
-- [x] Pollinations API endpoints aligned to current unified gen.pollinations.ai URLs
+- [x] Pollinations API endpoints aligned to current working URLs (text.pollinations.ai, image.pollinations.ai)
 - [x] extractJson handles malformed/empty responses gracefully with descriptive errors
 
 ## Product quality
