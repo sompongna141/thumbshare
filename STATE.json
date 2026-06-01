@@ -2,9 +2,9 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-01T00:50:00Z",
-  "summary": "Prompt scaffolding overhaul + image model auto-fallback. Added anti-AI-slop rules, visual hierarchy guidance, face expression taxonomy by tone, typography best practices, YouTube CTR tips, and specific A/B plan instructions. Auto-fallback chain (flux→kontext→flux-schnell→turbo→sdxl) on image load failure. Model picker defaults to preference order. 36/36 tests passing. Build + lint clean. Git committed as 2e11929. Still blocked by human-provided GitHub/Vercel credentials and real BYOP key.",
-  "currentFocus": "Deploy readiness. All code quality gates green. Improving prompt quality and resilience while waiting for external deployment dependencies.",
+  "updatedAt": "2026-06-01T01:58:00Z",
+  "summary": "Fixed critical Pollinations API endpoint migration. gen.pollinations.ai was returning 404/401 on text and image endpoints. Migrated to text.pollinations.ai (text), image.pollinations.ai/prompt (images), image.pollinations.ai/models (model list). Default image model updated from flux to sana (only currently available model). Added pickDefaultModel for dynamic model selection. 42/42 tests passing. Build + lint clean.",
+  "currentFocus": "Deploy readiness. Core API connectivity fixed — live generation now works against current Pollinations endpoints. Still blocked by external deployment dependencies.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",
@@ -28,7 +28,7 @@
     "Image quality depends on user's Pollinations key budget and prompt scaffolding.",
     "Face expression control via text-to-image is approximate.",
     "No channel brand memory or persistent user accounts.",
-    "Concept regeneration replaces a single concept from a fresh 6-pack; exact targeting not guaranteed.",
+    "Currently only sana image model available on Pollinations API; flux and other models may return later.",
     "End-to-end generation quality not yet validated with real Pollinations user key.",
     "Mock mode produces tone-aware placeholder concepts for safe dev testing but does not exercise live LLM quality."
   ]

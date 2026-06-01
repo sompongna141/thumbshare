@@ -1,4 +1,48 @@
 
+## 2026-06-01 01:45 UTC
+
+**Focus:** Critical Pollinations API endpoint migration — gen.pollinations.ai was returning 404 (text) and 401 (image).
+
+- **Investigated broken API endpoints:**
+  - `gen.pollinations.ai/openai/chat/completions` → 404 (not found)
+  - `gen.pollinations.ai/image/models` → 401 (unauthorized)
+  - `gen.pollinations.ai/image/{prompt}` → 401
+  - `text.pollinations.ai/openai/chat/completions` → 200 OK
+  - `image.pollinations.ai/prompt/{prompt}` → 200 OK (returns image binary)
+  - `image.pollinations.ai/models` → 200 OK (returns `["sana"]`)
+
+- **Migrated all endpoints to current working URLs:**
+  - Text generation: `https://gen.pollinations.ai/openai/chat/completions` → `https://text.pollinations.ai/openai/chat/completions` (in `src/lib/pollinations.ts`)
+  - Image generation: `https://gen.pollinations.ai/image/` → `https://image.pollinations.ai/prompt/` (in `src/lib/pollinations.ts`)
+  - Image models: `https://gen.pollinations.ai/image/models` → `https://image.pollinations.ai/models` (in API route + model fetch lib)
+
+- **Updated default model to sana:**
+  - Current model list from Pollinations API: `["sana"]` (previously included flux, turbo, sdxl)
+  - Default changed from `"flux"` to `"sana"` in URL builder, React state, and tests
+  - Added `sana` to `PREFERRED_MODEL_ORDER` in model-fallback.ts
+
+- **Refactored model fallback logic to be dynamic:**
+  - `getNextFallbackModel(current, available)` now accepts available model list from live API
+  - `pickDefaultModel(available, saved?)` selects best available model by preference order
+  - Page.tsx uses `pickDefaultModel(imageModels.map(m=>m.name), savedModel)` on mount
+  - `handleImageError` passes live available model list to fallback logic
+
+- **Updated tests (42/42 passing):**
+  - `buildThumbnailImageUrl`: updated `model=flux` → `model=sana`, fixed decode path from `/image/` to `/prompt/`
+  - Model fallback: updated `returns null when no more fallbacks` for `sana` (last in list), added dynamic available-list tests, added `pickDefaultModel` tests
+
+- **Build + lint:** Clean (tsc --noEmit, Next.js standalone output)
+
+- **Git commit:** `29f0299`
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-06-01 00:45 UTC
 
 **Focus:** Prompt scaffolding overhaul + image model auto-fallback + model fallback tests.
