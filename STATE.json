@@ -2,13 +2,13 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-01T05:52:00Z",
-  "summary": "Committed prior-run UX improvements: workflow step tracker (Spark → Market → Direction), brief completion progress indicator, paid-only/video model filtering in model API. Build + lint + 59/59 tests passing. Still awaiting human GitHub/Vercel credentials and real BYOP key for final deploy steps.",
-  "currentFocus": "Deploy readiness. Core workflow complete and well-tested. UX polish and export quality improved. App is waiting on human-provided GitHub/Vercel credentials + real BYOP key for final e2e smoke test.",
+  "updatedAt": "2026-06-01T18:52:00Z",
+  "summary": "Homepage built and deployed to app routing. Tool workspace moved to /studio. Landing page at / has hero, workflow steps, feature grid, CTA, footer — all responsive and impeccable-compliant. Build + lint + 59/59 tests passing.",
+  "currentFocus": "Deploy readiness. Core workflow complete and well-tested. UX polish and export quality improved. Homepage is now built per v2 homepage-first rule. App is waiting on human-provided GitHub/Vercel credentials + real BYOP key for final e2e smoke test.",
   "nextTasks": [
-    "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",
     "Create Vercel project and connect to GitHub repo (requires human-provided account)",
+    "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Set POLLINATIONS_ALLOW_MOCK=false in production environment"
   ],
   "blockers": [
@@ -22,7 +22,8 @@
     "docsReady": true,
     "deployReady": false,
     "deployed": false,
-    "githubPublished": false
+    "githubPublished": false,
+    "homepageBuilt": true
   },
   "knownLimitations": [
     "Image quality depends on user's Pollinations key budget and prompt scaffolding.",

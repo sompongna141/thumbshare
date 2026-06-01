@@ -266,3 +266,39 @@
 - **Phase:** `core_workflow_complete`.
 
 **Blocked by:** End-to-end generation validation needs real Pollinations key.
+
+---
+
+## 2026-06-01 18:45 UTC
+
+**Focus:** Homepage build — moved tool workspace to `/studio`, created premium landing page at `/`.
+
+- **Homepage-first compliance:** Per CRON_PROMPT v2 homepage-first rule, the existing single-page tool UI (page.tsx ~1010 lines) was moved to `/studio`. A new `/` landing page was built.
+- **Landing page features:**
+  - Sticky nav with brand logo and "Open Studio" CTA
+  - Hero section: clear value prop ("Thumbnails that stop the scroll"), subtitle, primary CTA, and CSS-only abstract thumbnail card composition (no images to load)
+  - Four-step workflow section (Hook, Audience, Direction, Concepts)
+  - Feature grid covering Image Prompt, Face Expression, Text Overlay, Color Psychology, A/B Variant, Export Ready
+  - Final CTA section with link to studio
+  - Footer with "Built on Pollinations. Developer earnings enabled."
+  - Responsive layouts: 2-column hero collapses to 1 column below 900px, visual hidden below 640px, grids adapt to 2-col then 1-col
+  - Reduced-motion support for all animated elements
+- **Impeccable skill compliance:**
+  - Contrast: all text uses existing CSS variables (`--text`, `--text-secondary`, `--muted`) against dark background (`--bg`, `--bg-2`), ratios exceed 4.5:1
+  - Typography: single font stack (system sans-serif), hero clamp max 3.5rem, letter-spacing -0.04em on hero title, -0.03em on section titles
+  - Layout: grid for 2D sections, flex for 1D rows, varied spacing (space-3xl / space-2xl / space-xl rhythm)
+  - Motion: 150-250ms transitions only, reduced-motion removes transitions entirely
+  - Copy: every word earns place — no buzzwords, CTA is verb-first ("Start creating", "Open ThumbSnare Studio")
+  - No banned patterns: no gradient text, no glassmorphism, no side-stripe borders, no identical card grids (feature cards vary), border-radius ≤ 14px
+- **Build verification:** Lint clean, 59/59 tests passing, `NEXT_DIST_DIR=.next2` build produces 9 static/dynamic routes including `/` (175 B) and `/studio` (7.97 kB).
+- **Homepage status:** `homepageStatus` now `built`. Per registry, this was previously `missing`.
+- **Git commit:** mid-run commit done after homepage files written and build verified.
+
+**Next tasks:**
+- Push to GitHub remote when human provides credentials
+- Create Vercel project when human provides account
+- Final end-to-end smoke test with real BYOP key
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
