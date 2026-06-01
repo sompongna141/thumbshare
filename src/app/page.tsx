@@ -8,7 +8,7 @@ import {
   ByopState,
 } from "@/lib/types";
 import { PollinationsModel } from "@/lib/pollinations-models";
-import { buildThumbnailImageUrl } from "@/lib/pollinations";
+import { buildThumbnailImageUrl, generatePlaceholderSvg } from "@/lib/pollinations";
 import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "@/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "@/lib/sample-brief";
 
@@ -689,6 +689,8 @@ function ConceptCard({
   onToggleStar: () => void;
 }) {
   const [retryCount, setRetryCount] = useState(0);
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
+  useEffect(() => { setShowPlaceholder(false); setRetryCount(0); }, [concept.imagePrompt, concept.conceptName]);
   const imageUrl = useMemo(
     () => buildThumbnailImageUrl(concept.imagePrompt, clientKey, imageModel, retryCount),
     [concept.imagePrompt, clientKey, imageModel, retryCount]
@@ -696,12 +698,19 @@ function ConceptCard({
   return (
     <div className="concept-card">
       <div className="card-img-wrap">
-        {!imageError ? (
+        {!imageError && !showPlaceholder ? (
           <img
             src={imageUrl}
             alt={concept.conceptName}
             loading="lazy"
             onError={onImageError}
+          />
+        ) : showPlaceholder ? (
+          <img
+            src={generatePlaceholderSvg(concept)}
+            alt={concept.conceptName}
+            loading="lazy"
+            style={{ width: "100%", aspectRatio: "16 / 9", objectFit: "cover", display: "block" }}
           />
         ) : (
           <div className="img-fallback">
@@ -712,7 +721,10 @@ function ConceptCard({
                 ? `Model: ${imageModel}. Try switching models or regenerate.`
                 : "Connect Pollinations to generate previews."}
             </div>
-            <button className="btn small" onClick={() => { setRetryCount((prev) => prev + 1); onRetryImage(); }}>Retry image</button>
+            <div className="img-fallback-actions" style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <button className="btn small" onClick={() => { setRetryCount((prev) => prev + 1); onRetryImage(); }}>Retry image</button>
+              <button className="btn small secondary" onClick={() => setShowPlaceholder(true)}>Generate placeholder</button>
+            </div>
           </div>
         )}
       </div>

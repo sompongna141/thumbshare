@@ -2,9 +2,9 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-01T01:58:00Z",
-  "summary": "Fixed critical Pollinations API endpoint migration. gen.pollinations.ai was returning 404/401 on text and image endpoints. Migrated to text.pollinations.ai (text), image.pollinations.ai/prompt (images), image.pollinations.ai/models (model list). Default image model updated from flux to sana (only currently available model). Added pickDefaultModel for dynamic model selection. 42/42 tests passing. Build + lint clean.",
-  "currentFocus": "Deploy readiness. Core API connectivity fixed — live generation now works against current Pollinations endpoints. Still blocked by external deployment dependencies.",
+  "updatedAt": "2026-06-01T02:52:00Z",
+  "summary": "Added SVG placeholder fallback for failed image loads. When all Pollinations image model fallbacks are exhausted, users can click 'Generate placeholder' to get a styled SVG preview showing concept name, text overlay, face expression, and concept color. Added 30s timeout + AbortController to text API (pollinationsText + API route) with descriptive timeout error (504). Added QA scenarios 7 & 8 for placeholder and timeout flows. 50/50 tests passing. Build + lint clean.",
+  "currentFocus": "Deploy readiness. Two UX quality improvements shipped: styled SVG placeholder on image failure, and timeout protection on concept generation. Core workflow robust and well-tested.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",

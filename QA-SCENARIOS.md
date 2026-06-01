@@ -52,3 +52,17 @@
 1. Generate concepts.
 2. Click **Copy** on one concept.
 3. **Expected:** clipboard contains full concept details.
+
+## Scenario 7: Image fallback + placeholder
+1. Generate concepts with a model that may be unavailable.
+2. If an image fails to load, the fallback chain tries alternative models.
+3. If all fallbacks fail, the fallback card shows "Retry image" and "Generate placeholder" buttons.
+4. Click **Retry image** → retry with fresh seed.
+5. Click **Generate placeholder** → a styled SVG placeholder appears showing concept name, text overlay, and face expression.
+6. **Expected:** placeholder is visually consistent with the app's dark theme and concept colors.
+
+## Scenario 8: Generation timeout
+1. Submit a brief with a real key.
+2. If the Pollinations text API takes longer than 30s, the request aborts.
+3. **Expected:** user sees a clear "timed out" error message, not a hanging spinner.
+4. User can retry immediately.

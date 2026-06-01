@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { buildThumbnailImageUrl, extractJson } from "../src/lib/pollinations";
+import { buildThumbnailImageUrl, extractJson, generatePlaceholderSvg } from "../src/lib/pollinations";
 import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "../src/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "../src/lib/sample-brief";
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "../src/lib/types";
@@ -283,6 +283,62 @@ describe("Tone enum coverage", () => {
     sampleBriefs.forEach((b) => {
       expect(validTones).toContain(b.tone);
     });
+  });
+});
+
+// ── Placeholder SVG generation ──
+
+describe("generatePlaceholderSvg", () => {
+  it("returns a data:image/svg+xml URL", () => {
+    const url = generatePlaceholderSvg(mockConcept);
+    expect(url).toMatch(/^data:image\/svg\+xml,/);
+  });
+
+  it("embeds concept name in the SVG", () => {
+    const url = generatePlaceholderSvg(mockConcept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain(mockConcept.conceptName);
+  });
+
+  it("embeds text overlay in the SVG", () => {
+    const url = generatePlaceholderSvg(mockConcept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain(mockConcept.textOverlay.text);
+  });
+
+  it("embeds face expression in the SVG", () => {
+    const url = generatePlaceholderSvg(mockConcept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain(mockConcept.faceExpression);
+  });
+
+  it("uses hex color when provided", () => {
+    const concept = { ...mockConcept, colorPsychology: { ...mockConcept.colorPsychology, primaryColor: "#ff6600" } };
+    const url = generatePlaceholderSvg(concept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain("#ff6600");
+  });
+
+  it("uses color map for named colors", () => {
+    const concept = { ...mockConcept, colorPsychology: { ...mockConcept.colorPsychology, primaryColor: "teal" } };
+    const url = generatePlaceholderSvg(concept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain("#14b8a6");
+  });
+
+  it("escapes XML special characters", () => {
+    const concept = { ...mockConcept, conceptName: "A & B <test>", textOverlay: { text: "<bold>", placement: "center" } };
+    const url = generatePlaceholderSvg(concept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain("A &amp; B &lt;test&gt;");
+    expect(decoded).toContain("&lt;bold&gt;");
+  });
+
+  it("defaults to accent when unknown color name", () => {
+    const concept = { ...mockConcept, colorPsychology: { ...mockConcept.colorPsychology, primaryColor: "unicorn" } };
+    const url = generatePlaceholderSvg(concept);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    expect(decoded).toContain("#f43f5e");
   });
 });
 

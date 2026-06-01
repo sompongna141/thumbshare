@@ -19,31 +19,46 @@ function getTextModel(): string {
 
 async function pollinationsText(
   messages: { role: string; content: string }[],
-  clientKey?: string
+  clientKey?: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const key = getApiKey(clientKey);
   if (!key) throw new Error("Missing Pollinations user key");
   const model = getTextModel();
-  const res = await fetch(
-    `https://text.pollinations.ai/openai/chat/completions`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${encodeURIComponent(key)}`,
-        ...(getPollinationsAppKey()
-          ? { "x-app-key": getPollinationsAppKey() }
-          : {}),
-      },
-      body: JSON.stringify({ model, messages, stream: false }),
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  try {
+    // Combine external signal with our local timeout
+    if (signal) {
+      signal.addEventListener("abort", () => controller.abort());
     }
-  );
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Pollinations API error: ${res.status} ${text}`);
+    const res = await fetch(
+      `https://text.pollinations.ai/openai/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${encodeURIComponent(key)}`,
+          ...(getPollinationsAppKey()
+            ? { "x-app-key": getPollinationsAppKey() }
+            : {}),
+        },
+        body: JSON.stringify({ model, messages, stream: false }),
+        signal: controller.signal,
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Pollinations API error: ${res.status} ${text}`);
+    }
+    const json = await res.json();
+    return json?.choices?.[0]?.message?.content || "";
+  } catch (e: any) {
+    if (e?.name === "AbortError") throw new Error("Pollinations API request timed out (30s)");
+    throw e;
+  } finally {
+    clearTimeout(timeout);
   }
-  const json = await res.json();
-  return json?.choices?.[0]?.message?.content || "";
 }
 
 export function extractJson(text: string): any {
@@ -70,6 +85,21 @@ export function extractJson(text: string): any {
   } catch (e) {
     throw new Error(`Response is not valid JSON. First 200 chars: ${text.slice(0, 200).replace(/\n/g, " ")}`);
   }
+}
+
+export function generatePlaceholderSvg(concept: ThumbnailConcept): string {
+  const colorMap: Record<string, string> = {
+    red: "#ef4444", blue: "#3b82f6", yellow: "#eab308", green: "#22c55e",
+    orange: "#f97316", purple: "#a855f7", pink: "#ec4899", teal: "#14b8a6",
+    darkred: "#991b1b", gold: "#d97706",
+  };
+  const rawColor = concept.colorPsychology.primaryColor;
+  const fill = rawColor.startsWith("#") ? rawColor : (colorMap[rawColor.toLowerCase()] || "#f43f5e");
+  const name = concept.conceptName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const text = concept.textOverlay.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const face = concept.faceExpression.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><rect width="1280" height="720" fill="#0f0f0f"/><rect x="60" y="60" width="1160" height="600" rx="24" fill="${fill}" opacity="0.12"/><text x="640" y="280" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="42" font-weight="700" fill="#e5e5e5">${name}</text><text x="640" y="380" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff">${text || "THUMBNAIL"}</text><text x="640" y="480" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="28" fill="#a1a1aa">${face}</text><text x="640" y="580" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" fill="#52525b">Preview unavailable • Pollinations image API</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 export function buildThumbnailImageUrl(prompt: string, key?: string, model = "sana", retryCount = 0): string {
@@ -201,7 +231,8 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
 
 export async function generateThumbnailConcepts(
   brief: ThumbnailBrief,
-  clientKey?: string
+  clientKey?: string,
+  signal?: AbortSignal
 ): Promise<ConceptGenerationResult> {
   const key = getApiKey(clientKey);
   if (key === "mock") {
@@ -211,7 +242,8 @@ export async function generateThumbnailConcepts(
   const prompt = conceptPromptBuilder(brief);
   const text = await pollinationsText(
     [{ role: "user", content: prompt }],
-    clientKey
+    clientKey,
+    signal
   );
   const parsed = extractJson(text);
   const concepts: ThumbnailConcept[] = (parsed.concepts || []).map(

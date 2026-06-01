@@ -1,4 +1,22 @@
 
+## 2026-06-01 02:52 UTC
+
+**Focus:** SVG placeholder fallback for failed image loads + generation timeout protection.
+
+- **Styled SVG placeholder on image failure:** Added `generatePlaceholderSvg(concept)` that creates a `data:image/svg+xml` URL with the concept name, text overlay, face expression, and concept color on a dark card. Added "Generate placeholder" button in the image fallback UI. Placeholder shows up as an actual image within the card layout rather than a blank or generic icon. Added `useEffect` to reset placeholder state when the concept imagePrompt changes. 8 new tests (50/50 passing).
+- **Generation timeout protection:** Added 30s `AbortController` timeout to `pollinationsText()` and wired it through `generateThumbnailConcepts()`. API route wraps generation in a 35s timeout with `clearTimeout`/`AbortController`. Returns HTTP 504 with a descriptive "Generation timed out. Please retry in a moment." error instead of a hanging spinner.
+- **QA scenarios expanded:** Added Scenario 7 (placeholder fallback) and Scenario 8 (timeout handling) to `QA-SCENARIOS.md`.
+- **Build + lint:** Clean (tsc --noEmit, Next.js standalone output).
+- **Tests:** 50/50 passing.
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-06-01 01:45 UTC
 
 **Focus:** Critical Pollinations API endpoint migration — gen.pollinations.ai was returning 404 (text) and 401 (image).

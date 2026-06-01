@@ -23,8 +23,22 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await generateThumbnailConcepts(brief, clientKey);
-    return NextResponse.json(result);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 35000);
+    try {
+      const result = await generateThumbnailConcepts(brief, clientKey, controller.signal);
+      return NextResponse.json(result);
+    } catch (e: any) {
+      if (e?.name === "AbortError" || e?.message?.includes("timed out")) {
+        return NextResponse.json(
+          { error: "Generation timed out. Please retry in a moment." },
+          { status: 504 }
+        );
+      }
+      throw e;
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch (e: any) {
     return NextResponse.json(
       { error: e?.message || "Generation failed" },
