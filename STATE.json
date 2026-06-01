@@ -2,8 +2,8 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-05-31T21:47:00Z",
-  "summary": "Fixed recurring tsconfig lint noise: .next/types/**/*.ts was re-introduced into tsconfig.json include (likely by a build), causing persistent TS6053 errors on tsc --noEmit. Removed it. Build, lint, 29/29 tests all passing. Git committed as ff5788a.",
+  "updatedAt": "2026-05-31T23:48:00Z",
+  "summary": "Fixed image retry defect: retry button now changes the seed parameter so the browser fetches a new image URL. Improved mock-mode concept naming to derive from video title keywords instead of generic 'Dramatic Close-Up N'. Added tests for retry seed behavior and URL key encoding. Build, lint, 31/31 tests passing. Git committed as 8098b3f.",
   "currentFocus": "Deploy readiness. Build+lint+tests pass. Still blocked by human-provided GitHub/Vercel credentials and real BYOP key for final e2e smoke test.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",

@@ -1,4 +1,26 @@
 
+## 2026-05-31 23:45 UTC
+
+**Focus:** Fix image retry defect + improve mock concept naming + expand test coverage.
+
+- **Fixed image retry bug:** The "Retry image" button in the image fallback UI was clearing the error state but re-using the same memoized image URL because `buildThumbnailImageUrl` had no retry parameter. Browser cache would return the same broken image. Fixed by adding `retryCount` parameter to `buildThumbnailImageUrl` that increments the seed by 1,000,000 per retry. `ConceptCard` now tracks local `retryCount` state and passes it into the URL builder. Retry now actually fetches a different image.
+- **Improved mock mode concept names:** Previously mock concepts were named generically (`"Dramatic Close-Up 1"` ... `6`). Now they derive from the first 2 significant words of the video title combined with a thumbnail-style suffix (`Face Drop`, `Split Shock`, `Text Punch`, `Color Pop`, `Prop Reveal`, `Angle Flip`). This makes mock demos feel more realistic and title-aware.
+- **Added tests:**
+  - `changes seed on retry` — validates `retryCount` increases seed by 1,000,000
+  - `key param is properly URL-encoded` — validates special characters in keys are encoded
+  - Updated mock-mode concept name test to assert title-keyword derivation instead of stale tone-based assertion
+- **Test count:** 29 → 31. All 31 passing.
+- **Build + lint:** Clean (Next.js standalone output, tsc --noEmit clean).
+- **Git commit:** `8098b3f`.
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-05-31 21:45 UTC
 
 **Focus:** Fix recurring tsconfig lint noise + commit + state sync.

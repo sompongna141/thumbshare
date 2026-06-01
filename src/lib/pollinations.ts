@@ -97,11 +97,46 @@ ${brief.constraints ? `Constraints: ${brief.constraints}` : ""}
 Rules for image prompts:
 - 50–120 words each.
 - NO generic adjectives: "vibrant", "eye-catching", "stunning", "amazing", "beautiful", "dynamic", "professional".
+- NO AI-slop terms: "4K", "unreal engine", "octane render", "highly detailed", "masterpiece", "professional quality", "stunning", "beautiful".
 - Use specific props, exact camera angles, lighting directions, and background descriptions.
 - Must feel like a real YouTuber's thumbnail, not a stock photo or studio poster.
 - Faces should be close-up, expressions exaggerated, readable at small size.
 - Background must have strong contrast against white (YouTube's UI background).
 - Include 1 specific prop or object that anchors the story.
+
+Visual hierarchy rules:
+- Foreground: face or hands are the dominant element (60–70% of frame).
+- Mid-ground: 1 anchoring prop that tells the story.
+- Background: flat color or subtle gradient; never busy scenery or detailed rooms.
+- Keep at least 30% of the frame as negative space for text readability.
+
+Face expression taxonomy by tone:
+- dramatic: shocked wide eyes, mouth slightly open, raised eyebrows, tense jaw.
+- funny: squinted playful eyes, open-mouth laugh, head tilted, exaggerated surprise.
+- educational: curious raised eyebrow, slight knowing smile, eyes looking up/right (thinking).
+- controversial: skeptical side-eye, furrowed brow, tight-lipped or smirk, challenging gaze.
+- emotional: soft teary eyes, gentle smile, vulnerable open expression, hands near face.
+- curiosity: intrigued half-smile, head tilt, eyes wide with eyebrows raised, finger to lips.
+- fear: wide-eyed stare, clenched jaw, pupils small, hand partially covering mouth.
+- aspirational: confident chin-up smile, relaxed shoulders, direct eye contact, glow of success.
+If the topic does not logically include a face, use an extreme close-up of hands, an object in dramatic motion, or a bold typographic shape as the dominant element instead.
+
+Typography rules:
+- Text on thumbnail: 3–5 words maximum.
+- Bold sans-serif font, thick stroke or drop-shadow for legibility at 150px.
+- Avoid thin fonts, script fonts, or more than 2 typefaces.
+- Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
+- Preferred placements: top-left, center, bottom-center, or top-right.
+
+YouTube-specific CTR best practices:
+- Thumbnails are judged in 0.5 seconds at 150px wide on mobile.
+- High contrast between subject and background.
+- Single clear focal point — no collage layouts.
+- If using text, it must be instantly readable; if no text, the visual must be unmistakable.
+- Colors that pop on white/light backgrounds: red, yellow, teal, orange, saturated blue.
+- Avoid placing the subject's face in the exact center; use rule of thirds for visual tension.
+- Test close-up face versus wider shot with prop context.
+- Test text-heavy versus text-light variants.
 
 For each concept, provide:
 - id: "1" through "6"
@@ -114,7 +149,7 @@ For each concept, provide:
 - platformNotes: note about mobile vs desktop visibility
 
 Also provide:
-- abPlan: a concise 3-step A/B testing plan tailored to this video's topic and tone. Do not use generic steps like "choose top 2 concepts." Instead, suggest specific angles to test against each other based on the generated concepts.
+- abPlan: a concise 3-step A/B testing plan tailored to this video's topic and tone. Each step must pair two specific concepts from the generated set and state exactly what visual variable differs between them (e.g., face close-up vs. prop context, text-heavy vs. text-light, high saturation vs. muted palette). Do not use generic steps like "choose top 2 concepts."
 
 Return ONLY valid JSON in this exact shape:
 {

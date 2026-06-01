@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { buildThumbnailImageUrl, extractJson } from "../src/lib/pollinations";
+import { getNextFallbackModel, getPreferredModelIndex } from "../src/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "../src/lib/sample-brief";
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "../src/lib/types";
 
@@ -282,5 +283,36 @@ describe("Tone enum coverage", () => {
     sampleBriefs.forEach((b) => {
       expect(validTones).toContain(b.tone);
     });
+  });
+});
+
+// ── Model fallback logic ──
+
+describe("Model fallback", () => {
+  it("returns next model in preference order", () => {
+    expect(getNextFallbackModel("flux")).toBe("kontext");
+    expect(getNextFallbackModel("kontext")).toBe("flux-schnell");
+    expect(getNextFallbackModel("flux-schnell")).toBe("turbo");
+    expect(getNextFallbackModel("turbo")).toBe("sdxl");
+  });
+
+  it("returns null when no more fallbacks", () => {
+    expect(getNextFallbackModel("sdxl")).toBeNull();
+  });
+
+  it("returns null for unknown model", () => {
+    expect(getNextFallbackModel("unknown-model")).toBeNull();
+  });
+
+  it("preferred model index assigns known models low numbers", () => {
+    expect(getPreferredModelIndex("flux")).toBe(0);
+    expect(getPreferredModelIndex("kontext")).toBe(1);
+    expect(getPreferredModelIndex("unknown")).toBe(999);
+  });
+
+  it("sorting by preferred index puts flux first", () => {
+    const models = [{ name: "sdxl" }, { name: "flux" }, { name: "turbo" }];
+    const sorted = [...models].sort((a, b) => getPreferredModelIndex(a.name) - getPreferredModelIndex(b.name));
+    expect(sorted[0].name).toBe("flux");
   });
 });

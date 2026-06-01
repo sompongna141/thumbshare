@@ -9,6 +9,7 @@ import {
 } from "@/lib/types";
 import { PollinationsModel } from "@/lib/pollinations-models";
 import { buildThumbnailImageUrl } from "@/lib/pollinations";
+import { getNextFallbackModel, getPreferredModelIndex } from "@/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "@/lib/sample-brief";
 
 function getStoredKey(): string | null {
@@ -120,6 +121,7 @@ export default function HomePage() {
   const [imageModels, setImageModels] = useState<PollinationsModel[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>("flux");
   const [imgErrorMap, setImgErrorMap] = useState<Record<string, boolean>>({});
+  const [fallbackModelMap, setFallbackModelMap] = useState<Record<string, string>>({});
   const [starred, setStarred] = useState<Set<string>>(new Set());
   const [briefHistory, setBriefHistory] = useState<BriefHistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -145,7 +147,8 @@ export default function HomePage() {
         if (savedModel && models.find((m) => m.name === savedModel)) {
           setSelectedModel(savedModel);
         } else if (models.length > 0 && !models.find((m) => m.name === selectedModel)) {
-          setSelectedModel(models[0].name);
+          const preferred = [...models].sort((a, b) => getPreferredModelIndex(a.name) - getPreferredModelIndex(b.name));
+          setSelectedModel(preferred[0].name);
         }
       })
       .catch(() => {
@@ -332,8 +335,23 @@ export default function HomePage() {
     });
   }
 
+  function handleImageError(id: string) {
+    const currentModel = fallbackModelMap[id] || selectedModel;
+    const nextModel = getNextFallbackModel(currentModel);
+    if (nextModel) {
+      setFallbackModelMap((prev) => ({ ...prev, [id]: nextModel }));
+    } else {
+      setImgErrorMap((prev) => ({ ...prev, [id]: true }));
+    }
+  }
+
   function handleRetryImage(id: string) {
     setImgErrorMap((prev) => ({ ...prev, [id]: false }));
+    setFallbackModelMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
   }
 
   function handleExportJson() {
@@ -610,10 +628,10 @@ export default function HomePage() {
                 key={c.id}
                 concept={c}
                 clientKey={byop.key || undefined}
-                imageModel={selectedModel}
+                imageModel={fallbackModelMap[c.id] || selectedModel}
                 imageError={imgErrorMap[c.id] || false}
-                onImageError={() => setImgErrorMap((prev) => ({ ...prev, [c.id]: true }))}
-        onRetryImage={() => handleRetryImage(c.id)}
+                onImageError={() => handleImageError(c.id)}
+                onRetryImage={() => handleRetryImage(c.id)}
                 onRegenerate={handleRegenerate}
                 regenerating={regenId === c.id}
                 onCopy={handleCopyConcept}
