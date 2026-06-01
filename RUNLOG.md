@@ -1,4 +1,25 @@
 
+## 2026-06-01 03:45 UTC
+
+**Focus:** Markdown export feature + commit previous uncommitted changes.
+
+- **Committed prior run changes:** SVG placeholder on image failure, generation timeout protection (30s), QA scenarios 7 & 8, 50/50 tests. Committed as `f732545`.
+- **Markdown export:** Added `buildMarkdownPacket()` in `src/lib/export.ts` that produces a clean, structured Markdown document with brief metadata, all concepts (face expression, text overlay, color psychology, A/B hint, platform notes, image prompt in code block), and A/B test plan. Supports `starred` filter for starred-only export.
+- **UI wiring:** Added `Export Markdown` and `Export starred Markdown` buttons alongside existing JSON, print, and copy actions.
+- **Refactored copy functions:** `handleCopyAll` and `handleCopyStarred` now use `buildMarkdownPacket()` so clipboard output matches the downloaded Markdown, ensuring consistency.
+- **Tests:** Added `tests/export.test.ts` with 9 tests covering header rendering, all-concepts output, starred filtering, zero-starred edge case, markdown escaping, image prompt code blocks, optional field omission, A/B plan, and footer. 59/59 tests passing.
+- **QA:** Added Scenario 9 (markdown export) to `QA-SCENARIOS.md`. Updated `QA.md` test count to 59/59 and added Markdown export to remaining validation items.
+- **Build + lint:** Clean (tsc --noEmit, Next.js standalone output).
+- **Git commits:** `f732545` (prior), `9ab5614` (markdown feature), `901c1bf` (refactor copy to use markdown builder).
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-06-01 02:52 UTC
 
 **Focus:** SVG placeholder fallback for failed image loads + generation timeout protection.

@@ -2,9 +2,9 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-01T02:52:00Z",
-  "summary": "Added SVG placeholder fallback for failed image loads. When all Pollinations image model fallbacks are exhausted, users can click 'Generate placeholder' to get a styled SVG preview showing concept name, text overlay, face expression, and concept color. Added 30s timeout + AbortController to text API (pollinationsText + API route) with descriptive timeout error (504). Added QA scenarios 7 & 8 for placeholder and timeout flows. 50/50 tests passing. Build + lint clean.",
-  "currentFocus": "Deploy readiness. Two UX quality improvements shipped: styled SVG placeholder on image failure, and timeout protection on concept generation. Core workflow robust and well-tested.",
+  "updatedAt": "2026-06-01T03:52:00Z",
+  "summary": "Shipped Markdown export (all + starred) for concept packs, refactored clipboard copy to use the same builder for consistency. Added 9 export unit tests (59/59 passing). QA Scenario 9 added for markdown export. Previous uncommitted changes (SVG placeholder, timeout protection, 50 tests) committed. Build + lint clean.",
+  "currentFocus": "Deploy readiness. Core workflow complete and well-tested. UX polish and export quality improved. App is waiting on human-provided GitHub/Vercel credentials + real BYOP key for final e2e smoke test.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",
