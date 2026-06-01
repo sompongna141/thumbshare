@@ -1,4 +1,10 @@
 
+## 2026-06-01 19:45 UTC
+
+**Status update:** App switched to `parked` due to blocker cooldown. Identical external blockers persisted for 4 consecutive runs (GitHub/Vercel credentials + real BYOP key). Per v2 policy, cron auto-switched to subtitle-studio. All code, tests (59/59), homepage, and build remain intact. Will resume when human provides credentials.
+
+---
+
 ## 2026-06-01 05:45 UTC
 
 **Focus:** UX polish sprint — workflow step tracking + model filtering robustness.
