@@ -1,4 +1,23 @@
 
+## 2026-06-01 00:45 UTC
+
+**Focus:** Prompt scaffolding overhaul + image model auto-fallback + model fallback tests.
+
+- **Prompt scaffolding overhaul:** Added anti-AI-slop rules (no "4K", "unreal engine", "octane render", "highly detailed", "masterpiece"). Added visual hierarchy rules (foreground face 60–70%, mid-ground prop, background flat color, 30% negative space). Added face expression taxonomy mapped to each tone (dramatic, funny, educational, controversial, emotional, curiosity, fear, aspirational). Added typography rules (3–5 words max, bold sans-serif, avoid bottom-right quadrant due to YouTube timestamp overlay). Added YouTube-specific CTR best practices (0.5s judgment, rule of thirds, close-up vs prop context, text-heavy vs text-light A/B). Tightened A/B plan instructions to require specific concept pairings and exact visual variable differences.
+- **Image model auto-fallback:** When an image fails to load, the UI transparently retries with the next model in the preference chain: flux → kontext → flux-schnell → turbo → sdxl. Only shows the fallback card after exhausting all models. User "Retry" button resets the fallback chain. Added `src/lib/model-fallback.ts` with pure functions for preference ordering.
+- **Model picker default:** Now sorts available models by preference index so `flux` is default if available, regardless of API response order.
+- **Tests:** +5 new tests for fallback logic (next model, null at end, unknown model, preferred index, sort order). 36/36 passing.
+- **Build + lint:** Clean (tsc --noEmit clean, Next.js standalone output).
+- **Git commit:** `2e11929`.
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-05-31 23:45 UTC
 
 **Focus:** Fix image retry defect + improve mock concept naming + expand test coverage.

@@ -2,9 +2,9 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-05-31T23:48:00Z",
-  "summary": "Fixed image retry defect: retry button now changes the seed parameter so the browser fetches a new image URL. Improved mock-mode concept naming to derive from video title keywords instead of generic 'Dramatic Close-Up N'. Added tests for retry seed behavior and URL key encoding. Build, lint, 31/31 tests passing. Git committed as 8098b3f.",
-  "currentFocus": "Deploy readiness. Build+lint+tests pass. Still blocked by human-provided GitHub/Vercel credentials and real BYOP key for final e2e smoke test.",
+  "updatedAt": "2026-06-01T00:50:00Z",
+  "summary": "Prompt scaffolding overhaul + image model auto-fallback. Added anti-AI-slop rules, visual hierarchy guidance, face expression taxonomy by tone, typography best practices, YouTube CTR tips, and specific A/B plan instructions. Auto-fallback chain (flux→kontext→flux-schnell→turbo→sdxl) on image load failure. Model picker defaults to preference order. 36/36 tests passing. Build + lint clean. Git committed as 2e11929. Still blocked by human-provided GitHub/Vercel credentials and real BYOP key.",
+  "currentFocus": "Deploy readiness. All code quality gates green. Improving prompt quality and resilience while waiting for external deployment dependencies.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Push git repo to GitHub remote (requires human-provided token/account)",
