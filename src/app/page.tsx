@@ -260,19 +260,8 @@ export default function HomePage() {
 
   function handleCopyStarred() {
     if (!result) return;
-    const starredConcepts = result.concepts.filter((c) => starred.has(c.id));
-    if (starredConcepts.length === 0) return;
-    const text = starredConcepts
-      .map(
-        (c: ThumbnailConcept, i: number) =>
-          `# ${i + 1}. ${c.conceptName}\n` +
-          `Prompt: ${c.imagePrompt}\n` +
-          `Face: ${c.faceExpression}\n` +
-          `Text: ${c.textOverlay.text} (${c.textOverlay.placement})\n` +
-          `Color: ${c.colorPsychology.primaryColor} — ${c.colorPsychology.emotion}\n` +
-          `A/B: ${c.abVariantHint}\n`
-      )
-      .join("\n---\n\n");
+    if (starred.size === 0) return;
+    const text = buildMarkdownPacket(result, starred);
     navigator.clipboard.writeText(text).then(() => {
       setCopied("starred");
       setTimeout(() => setCopied(null), 2000);
@@ -301,17 +290,7 @@ export default function HomePage() {
 
   function handleCopyAll() {
     if (!result) return;
-    const text = result.concepts
-      .map(
-        (c: ThumbnailConcept, i: number) =>
-          `# ${i + 1}. ${c.conceptName}\n` +
-          `Prompt: ${c.imagePrompt}\n` +
-          `Face: ${c.faceExpression}\n` +
-          `Text: ${c.textOverlay.text} (${c.textOverlay.placement})\n` +
-          `Color: ${c.colorPsychology.primaryColor} — ${c.colorPsychology.emotion}\n` +
-          `A/B: ${c.abVariantHint}\n`
-      )
-      .join("\n---\n\n");
+    const text = buildMarkdownPacket(result);
     navigator.clipboard.writeText(text).then(() => {
       setCopied("all");
       setTimeout(() => setCopied(null), 2000);

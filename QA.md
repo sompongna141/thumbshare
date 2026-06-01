@@ -31,7 +31,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (42/42 Vitest tests)
+- [x] test suite passes (59/59 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
@@ -63,11 +63,12 @@ These require a real Pollinations user key and/or production deployment to confi
 1. End-to-end concept generation returns valid JSON with 6 concepts via live LLM
 2. Image preview URLs load successfully with authenticated key on gen.pollinations.ai/image/
 3. Per-concept regeneration replaces the targeted concept via live API (prompt injection added, needs live validation)
-4. Export (JSON + clipboard + print) produces correct output in production
-5. Generated prompt quality meets the "better than raw prompting" bar with live LLM
-6. Live image model switching works across different model names from live model list
-7. BYOP auth flow works in production (OAuth callback, key storage, disconnect)
-8. Production env has POLLINATIONS_ALLOW_MOCK=false
-9. /api/config route returns correct runtime config without leaking secrets
-10. Image model auto-fallback works across all 5 models in preference chain with real API
-11. Prompt quality improvements (anti-AI-slop, visual hierarchy, face taxonomy, typography, CTR rules) produce measurably better live output than previous scaffolding
+4. Export (JSON + clipboard + print + markdown) produces correct output in production
+5. Markdown export produces clean, well-structured output that a designer can read
+6. Generated prompt quality meets the "better than raw prompting" bar with live LLM
+7. Live image model switching works across different model names from live model list
+8. BYOP auth flow works in production (OAuth callback, key storage, disconnect)
+9. Production env has POLLINATIONS_ALLOW_MOCK=false
+10. /api/config route returns correct runtime config without leaking secrets
+11. Image model auto-fallback works across all 5 models in preference chain with real API
+12. Prompt quality improvements (anti-AI-slop, visual hierarchy, face taxonomy, typography, CTR rules) produce measurably better live output than previous scaffolding
