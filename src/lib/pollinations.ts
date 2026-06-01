@@ -1,6 +1,8 @@
 /// <reference types="node" />
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "./types";
 
+const POLLINATIONS_BASE_URL = "https://gen.pollinations.ai";
+
 function getPollinationsAppKey(): string {
   return process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY || "";
 }
@@ -33,12 +35,12 @@ async function pollinationsText(
       signal.addEventListener("abort", () => controller.abort());
     }
     const res = await fetch(
-      `https://text.pollinations.ai/openai/chat/completions`,
+      `${POLLINATIONS_BASE_URL}/v1/chat/completions`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${encodeURIComponent(key)}`,
+          "Authorization": `Bearer ${key}`,
           ...(getPollinationsAppKey()
             ? { "x-app-key": getPollinationsAppKey() }
             : {}),
@@ -102,10 +104,10 @@ export function generatePlaceholderSvg(concept: ThumbnailConcept): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export function buildThumbnailImageUrl(prompt: string, key?: string, model = "sana", retryCount = 0): string {
+export function buildThumbnailImageUrl(prompt: string, key?: string, model = "flux", retryCount = 0): string {
   const maxPromptChars = 1500;
   const safePrompt = prompt.length > maxPromptChars ? prompt.slice(0, maxPromptChars) + "..." : prompt;
-  const base = "https://image.pollinations.ai/prompt/";
+  const base = `${POLLINATIONS_BASE_URL}/image/prompt/`;
   const encoded = encodeURIComponent(safePrompt);
   const seed = Math.floor(Math.random() * 1000000) + retryCount * 1000000;
   const url = `${base}${encoded}?width=1280&height=720&seed=${seed}&model=${encodeURIComponent(model)}`;

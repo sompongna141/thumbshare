@@ -120,7 +120,8 @@ export default function HomePage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [showBriefs, setShowBriefs] = useState(false);
   const [imageModels, setImageModels] = useState<PollinationsModel[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>("sana");
+  const [selectedModel, setSelectedModel] = useState<string>("flux");
+  const [manualKeyInput, setManualKeyInput] = useState("");
   const [imgErrorMap, setImgErrorMap] = useState<Record<string, boolean>>({});
   const [fallbackModelMap, setFallbackModelMap] = useState<Record<string, string>>({});
   const [starred, setStarred] = useState<Set<string>>(new Set());
@@ -142,7 +143,13 @@ export default function HomePage() {
     fetch("/api/pollinations/models")
       .then((r) => r.json())
       .then((d) => {
-        const models: PollinationsModel[] = Array.isArray(d.models) ? d.models : [];
+        let models: PollinationsModel[] = Array.isArray(d.models) ? d.models : [];
+        // Filter to image-only models (exclude video models)
+        models = models.filter(
+          (m) =>
+            m.output_modalities?.includes("image") &&
+            !m.output_modalities?.includes("video")
+        );
         setImageModels(models);
         const savedModel = getStoredModel();
         const availableNames = models.map((m) => m.name);
@@ -151,6 +158,8 @@ export default function HomePage() {
       })
       .catch(() => {
         setImageModels([]);
+        // Fallback default if API fails
+        setSelectedModel("flux");
       });
   }, []);
 
@@ -418,12 +427,37 @@ export default function HomePage() {
               onClick={() => {
                 clearStoredKey();
                 setByop({ key: null, status: "idle" });
+                setManualKeyInput("");
               }}
             >
               Disconnect
             </button>
           )}
         </div>
+        {/* Manual key input for testing */}
+        {byop.status !== "connected" && (
+          <div className="row" style={{ marginTop: 12, gap: 8 }}>
+            <input
+              type="text"
+              value={manualKeyInput}
+              onChange={(e) => setManualKeyInput(e.target.value)}
+              placeholder="Paste Pollinations API key for testing"
+              style={{ flex: 1, fontSize: 14 }}
+            />
+            <button
+              className="btn secondary small"
+              onClick={() => {
+                const key = manualKeyInput.trim();
+                if (!key) return;
+                setStoredKey(key);
+                setByop({ key, status: "connected" });
+              }}
+              disabled={!manualKeyInput.trim()}
+            >
+              Use key
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Brief Form */}

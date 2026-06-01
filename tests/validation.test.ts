@@ -97,10 +97,10 @@ describe("Types validation", () => {
 describe("buildThumbnailImageUrl", () => {
   it("encodes prompt and includes dimensions", () => {
     const url = buildThumbnailImageUrl("a surprised man holding a phone");
-    expect(url).toContain("image.pollinations.ai/prompt/");
+    expect(url).toContain("gen.pollinations.ai/image/prompt/");
     expect(url).toContain("width=1280");
     expect(url).toContain("height=720");
-    expect(url).toContain("model=sana");
+    expect(url).toContain("model=flux");
   });
 
   it("appends key when provided", () => {
@@ -347,17 +347,17 @@ describe("generatePlaceholderSvg", () => {
 describe("Model fallback", () => {
   it("returns next model in preference order", () => {
     expect(getNextFallbackModel("flux")).toBe("kontext");
-    expect(getNextFallbackModel("kontext")).toBe("flux-schnell");
-    expect(getNextFallbackModel("flux-schnell")).toBe("turbo");
-    expect(getNextFallbackModel("turbo")).toBe("sdxl");
+    expect(getNextFallbackModel("kontext")).toBe("gptimage");
+    expect(getNextFallbackModel("gptimage")).toBe("zimage");
+    expect(getNextFallbackModel("zimage")).toBe("wan-image");
   });
 
   it("returns null when no more fallbacks", () => {
-    expect(getNextFallbackModel("sana")).toBeNull(); // last in default order
+    expect(getNextFallbackModel("gptimage-large")).toBeNull(); // last in default order
   });
 
   it("returns first available alternative when current not in list", () => {
-    expect(getNextFallbackModel("unknown-model", ["sana", "flux"])).toBe("sana");
+    expect(getNextFallbackModel("unknown-model", ["flux", "kontext"])).toBe("flux");
   });
 
   it("returns null for unknown model with no available list", () => {
@@ -370,33 +370,34 @@ describe("Model fallback", () => {
   it("preferred model index assigns known models low numbers", () => {
     expect(getPreferredModelIndex("flux")).toBe(0);
     expect(getPreferredModelIndex("kontext")).toBe(1);
+    expect(getPreferredModelIndex("gptimage")).toBe(2);
     expect(getPreferredModelIndex("unknown")).toBe(999);
   });
 
   it("sorting by preferred index puts flux first", () => {
-    const models = [{ name: "sdxl" }, { name: "flux" }, { name: "turbo" }];
+    const models = [{ name: "wan-image" }, { name: "flux" }, { name: "gptimage" }];
     const sorted = [...models].sort((a, b) => getPreferredModelIndex(a.name) - getPreferredModelIndex(b.name));
     expect(sorted[0].name).toBe("flux");
   });
 
-  it("sana is in the preference list", () => {
-    expect(getPreferredModelIndex("sana")).toBeLessThan(999);
+  it("sana is not in the preference list (removed)", () => {
+    expect(getPreferredModelIndex("sana")).toBe(999);
   });
 
   it("pickDefaultModel uses saved model if available", () => {
-    expect(pickDefaultModel(["sana", "flux"], "flux")).toBe("flux");
+    expect(pickDefaultModel(["flux", "kontext"], "kontext")).toBe("kontext");
   });
 
   it("pickDefaultModel falls back to first available if saved missing", () => {
-    expect(pickDefaultModel(["sana"], "flux")).toBe("sana");
+    expect(pickDefaultModel(["kontext"], "flux")).toBe("kontext");
   });
 
-  it("pickDefaultModel prefers flux over sana when both available", () => {
-    expect(pickDefaultModel(["sana", "flux"], null)).toBe("flux");
+  it("pickDefaultModel prefers flux over kontext when both available", () => {
+    expect(pickDefaultModel(["kontext", "flux"], null)).toBe("flux");
   });
 
-  it("pickDefaultModel returns sana when nothing available", () => {
-    expect(pickDefaultModel([], null)).toBe("sana");
-    expect(pickDefaultModel([], "flux")).toBe("sana"); // falls back to default when no models available
+  it("pickDefaultModel returns flux when nothing available", () => {
+    expect(pickDefaultModel([], null)).toBe("flux");
+    expect(pickDefaultModel([], "kontext")).toBe("flux"); // falls back to default when no models available
   });
 });

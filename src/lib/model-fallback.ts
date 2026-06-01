@@ -5,7 +5,17 @@
  * to the next available model from the live list.
  */
 
-const PREFERRED_MODEL_ORDER = ["flux", "kontext", "flux-schnell", "turbo", "sdxl", "sana"];
+const PREFERRED_MODEL_ORDER = [
+  "flux",        // fast, free, reliable
+  "kontext",     // FLUX in-context editing
+  "gptimage",    // fast, affordable
+  "zimage",      // fast 6B Flux
+  "wan-image",   // Alibaba, up to 2K
+  "qwen-image",  // Alibaba
+  "nova-canvas", // Amazon
+  "klein",       // FLUX.2 Klein 4B
+  "gptimage-large",
+];
 
 export function getNextFallbackModel(current: string, available: string[] = PREFERRED_MODEL_ORDER): string | null {
   const idx = available.indexOf(current);
@@ -26,5 +36,5 @@ export function pickDefaultModel(available: string[], saved?: string | null): st
   if (saved && available.includes(saved)) return saved;
   // sort available by preference index and pick the best
   const sorted = [...available].sort((a, b) => getPreferredModelIndex(a) - getPreferredModelIndex(b));
-  return sorted[0] || available[0] || "sana";
+  return sorted[0] || available[0] || "flux";
 }
