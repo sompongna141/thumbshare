@@ -23,6 +23,7 @@
 - [x] sample brief selector with niche tags
 - [x] image error fallback UI shows helpful guidance instead of blank space
 - [x] live image model selector with persistence
+- [x] image model auto-fallback chain (flux → kontext → flux-schnell → turbo → sdxl) on load failure
 
 ## Technical
 
@@ -30,10 +31,11 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (29/29 Vitest tests)
+- [x] test suite passes (36/36 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
-- [x] A/B plan is dynamically generated, not hardcoded fallback
+- [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
+- [x] prompt scaffolding includes anti-AI-slop rules, visual hierarchy, face expression taxonomy, typography rules, and YouTube CTR best practices
 - [x] Pollinations API endpoints aligned to current unified gen.pollinations.ai URLs
 - [x] extractJson handles malformed/empty responses gracefully with descriptive errors
 
@@ -67,3 +69,5 @@ These require a real Pollinations user key and/or production deployment to confi
 7. BYOP auth flow works in production (OAuth callback, key storage, disconnect)
 8. Production env has POLLINATIONS_ALLOW_MOCK=false
 9. /api/config route returns correct runtime config without leaking secrets
+10. Image model auto-fallback works across all 5 models in preference chain with real API
+11. Prompt quality improvements (anti-AI-slop, visual hierarchy, face taxonomy, typography, CTR rules) produce measurably better live output than previous scaffolding
