@@ -5,6 +5,7 @@ export interface PollinationsModel {
   output_modalities?: string[];
   aliases?: string[];
   type?: string;
+  paid_only?: boolean;
 }
 
 let cachedModels: PollinationsModel[] | null = null;
@@ -30,14 +31,19 @@ export async function fetchPollinationsModels(): Promise<PollinationsModel[]> {
             output_modalities: item.output_modalities || [],
             aliases: item.aliases || [],
             type: item.type || "",
+            paid_only: item.paid_only === true || item.paidOnly === true,
           };
         }
         return null;
       })
     : [];
-  const models: PollinationsModel[] = raw.filter(
-    (m): m is PollinationsModel => m !== null
-  );
+  const models: PollinationsModel[] = raw
+    .filter((m): m is PollinationsModel => m !== null)
+    .filter((m) => !m.paid_only)
+    .filter((m) =>
+      m.output_modalities?.includes("image") &&
+      !m.output_modalities?.includes("video")
+    );
   cachedModels = models;
   cacheTime = Date.now();
   return models;

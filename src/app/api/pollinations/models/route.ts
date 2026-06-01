@@ -7,6 +7,7 @@ interface PollinationsModelEntry {
   input_modalities?: string[];
   output_modalities?: string[];
   type?: string;
+  paid_only?: boolean;
 }
 
 export async function GET() {
@@ -29,14 +30,20 @@ export async function GET() {
               input_modalities: item.input_modalities || [],
               output_modalities: item.output_modalities || [],
               type: item.type || "",
+              paid_only: item.paid_only === true || item.paidOnly === true,
             };
           }
           return null;
         })
       : [];
-    const models: PollinationsModelEntry[] = raw.filter(
-      (m): m is PollinationsModelEntry => m !== null
-    );
+    const models: PollinationsModelEntry[] = raw
+      .filter((m): m is PollinationsModelEntry => m !== null)
+      // Exclude paid-only models and video models
+      .filter((m) => !m.paid_only)
+      .filter((m) =>
+        m.output_modalities?.includes("image") &&
+        !m.output_modalities?.includes("video")
+      );
     return NextResponse.json({ models });
   } catch (e: any) {
     return NextResponse.json(

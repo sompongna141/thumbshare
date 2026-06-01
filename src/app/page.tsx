@@ -9,7 +9,7 @@ import {
 } from "@/lib/types";
 import { PollinationsModel } from "@/lib/pollinations-models";
 import { buildThumbnailImageUrl, generatePlaceholderSvg } from "@/lib/pollinations";
-import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "@/lib/model-fallback";
+import { getNextFallbackModel, pickDefaultModel } from "@/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "@/lib/sample-brief";
 import { buildMarkdownPacket } from "@/lib/export";
 
@@ -102,6 +102,52 @@ function SkeletonCard() {
   );
 }
 
+const WORKFLOW_STEPS = [
+  {
+    label: "Spark",
+    title: "Capture the hook",
+    description: "Lock the title and core angle before the visual system decides anything.",
+  },
+  {
+    label: "Market",
+    title: "Position the click",
+    description: "Define who should stop, why they care, and where this fits on the channel.",
+  },
+  {
+    label: "Direction",
+    title: "Set the visual brief",
+    description: "Choose tone, constraints, model, and generation access.",
+  },
+] as const;
+
+const TONE_OPTIONS: Array<{
+  value: ThumbnailBrief["tone"];
+  label: string;
+  cue: string;
+}> = [
+  { value: "curiosity", label: "Curiosity", cue: "open loop" },
+  { value: "dramatic", label: "Dramatic", cue: "stakes" },
+  { value: "controversial", label: "Controversial", cue: "tension" },
+  { value: "educational", label: "Educational", cue: "clarity" },
+  { value: "funny", label: "Funny", cue: "reaction" },
+  { value: "emotional", label: "Emotional", cue: "story" },
+  { value: "fear", label: "Fear", cue: "warning" },
+  { value: "aspirational", label: "Aspirational", cue: "desire" },
+];
+
+const CATEGORY_PRESETS = [
+  "Business",
+  "Tech",
+  "Finance",
+  "Gaming",
+  "Travel",
+  "Lifestyle",
+];
+
+function valueOrDash(value?: string) {
+  return value?.trim() || "Not set";
+}
+
 export default function HomePage() {
   const [byop, setByop] = useState<ByopState>({ key: null, status: "idle" });
   const [brief, setBrief] = useState<ThumbnailBrief>({
@@ -127,6 +173,7 @@ export default function HomePage() {
   const [starred, setStarred] = useState<Set<string>>(new Set());
   const [briefHistory, setBriefHistory] = useState<BriefHistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
     const hashKey = parseHashKey();
@@ -143,13 +190,7 @@ export default function HomePage() {
     fetch("/api/pollinations/models")
       .then((r) => r.json())
       .then((d) => {
-        let models: PollinationsModel[] = Array.isArray(d.models) ? d.models : [];
-        // Filter to image-only models (exclude video models)
-        models = models.filter(
-          (m) =>
-            m.output_modalities?.includes("image") &&
-            !m.output_modalities?.includes("video")
-        );
+        const models: PollinationsModel[] = Array.isArray(d.models) ? d.models : [];
         setImageModels(models);
         const savedModel = getStoredModel();
         const availableNames = models.map((m) => m.name);
@@ -183,6 +224,42 @@ export default function HomePage() {
     return `https://auth.pollinations.ai/auth?client_id=${encodeURIComponent(appKey)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=api_key&response_type=token`;
   }, [pollinationsAppKey]);
 
+  const briefCompletion = useMemo(() => {
+    const fields = [
+      brief.videoTitle,
+      brief.angle,
+      brief.topicCategory,
+      brief.targetAudience,
+      brief.channelContext,
+      brief.constraints,
+      brief.tone,
+    ];
+    const filled = fields.filter((field) => Boolean(field?.trim())).length;
+    return {
+      filled,
+      total: fields.length,
+      percent: Math.round((filled / fields.length) * 100),
+    };
+  }, [brief]);
+
+  const currentWorkflowStep = WORKFLOW_STEPS[currentStep] || WORKFLOW_STEPS[0];
+  const stepStates = [
+    brief.videoTitle.trim().length >= 3 && brief.angle.trim().length >= 5,
+    Boolean(
+      brief.topicCategory.trim() ||
+        brief.targetAudience.trim() ||
+        brief.channelContext?.trim()
+    ),
+    byop.status === "connected",
+  ];
+  const selectedTone = TONE_OPTIONS.find((option) => option.value === brief.tone) || TONE_OPTIONS[0];
+  const titleWordCount = brief.videoTitle.trim()
+    ? brief.videoTitle.trim().split(/\s+/).filter(Boolean).length
+    : 0;
+  const anglePreview = brief.angle.trim()
+    ? brief.angle.trim().split(/[.!?]/)[0].slice(0, 84)
+    : "Angle becomes the click promise.";
+
   function isBriefValid(b: ThumbnailBrief): boolean {
     return b.videoTitle.trim().length >= 3 && b.angle.trim().length >= 5;
   }
@@ -207,10 +284,12 @@ export default function HomePage() {
   async function handleGenerate() {
     if (!byop.key) {
       setError("Connect Pollinations first to generate concepts.");
+      setCurrentStep(2);
       return;
     }
     if (!isBriefValid(brief)) {
       setError("Please fill in at least Video Title and Angle.");
+      setCurrentStep(0);
       return;
     }
     setLoading(true);
@@ -385,6 +464,7 @@ export default function HomePage() {
     setError(null);
     setShowBriefs(false);
     setShowHistory(false);
+    setCurrentStep(2);
   }
 
   function loadHistory(entry: BriefHistoryEntry) {
@@ -393,6 +473,29 @@ export default function HomePage() {
     setError(null);
     setShowHistory(false);
     setShowBriefs(false);
+    setCurrentStep(2);
+  }
+
+  function handleNextStep() {
+    if (currentStep === 0 && !isBriefValid(brief)) {
+      setError("Add a video title and a clear angle before moving on.");
+      return;
+    }
+    setError(null);
+    setCurrentStep((step) => Math.min(step + 1, WORKFLOW_STEPS.length - 1));
+  }
+
+  function handleUseManualKey() {
+    const key = manualKeyInput.trim();
+    if (!key) return;
+    setStoredKey(key);
+    setByop({ key, status: "connected" });
+  }
+
+  function handleDisconnect() {
+    clearStoredKey();
+    setByop({ key: null, status: "idle" });
+    setManualKeyInput("");
   }
 
   return (
