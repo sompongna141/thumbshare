@@ -13,11 +13,11 @@ const CACHE_MS = 5 * 60 * 1000;
 
 export async function fetchPollinationsModels(): Promise<PollinationsModel[]> {
   if (cachedModels && Date.now() - cacheTime < CACHE_MS) return cachedModels;
-  const res = await fetch("https://gen.pollinations.ai/image/models");
+  const res = await fetch("https://image.pollinations.ai/models");
   if (!res.ok) throw new Error("Failed to fetch Pollinations models");
   const json = await res.json();
   const models: PollinationsModel[] = Array.isArray(json)
-    ? json
+    ? json.map((name: string) => ({ name, description: name }))
     : json?.models || [];
   cachedModels = models;
   cacheTime = Date.now();

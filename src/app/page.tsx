@@ -9,7 +9,7 @@ import {
 } from "@/lib/types";
 import { PollinationsModel } from "@/lib/pollinations-models";
 import { buildThumbnailImageUrl } from "@/lib/pollinations";
-import { getNextFallbackModel, getPreferredModelIndex } from "@/lib/model-fallback";
+import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "@/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "@/lib/sample-brief";
 
 function getStoredKey(): string | null {
@@ -119,7 +119,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState<string | null>(null);
   const [showBriefs, setShowBriefs] = useState(false);
   const [imageModels, setImageModels] = useState<PollinationsModel[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>("flux");
+  const [selectedModel, setSelectedModel] = useState<string>("sana");
   const [imgErrorMap, setImgErrorMap] = useState<Record<string, boolean>>({});
   const [fallbackModelMap, setFallbackModelMap] = useState<Record<string, string>>({});
   const [starred, setStarred] = useState<Set<string>>(new Set());
@@ -144,12 +144,9 @@ export default function HomePage() {
         const models: PollinationsModel[] = Array.isArray(d.models) ? d.models : [];
         setImageModels(models);
         const savedModel = getStoredModel();
-        if (savedModel && models.find((m) => m.name === savedModel)) {
-          setSelectedModel(savedModel);
-        } else if (models.length > 0 && !models.find((m) => m.name === selectedModel)) {
-          const preferred = [...models].sort((a, b) => getPreferredModelIndex(a.name) - getPreferredModelIndex(b.name));
-          setSelectedModel(preferred[0].name);
-        }
+        const availableNames = models.map((m) => m.name);
+        const defaultModel = pickDefaultModel(availableNames, savedModel);
+        setSelectedModel(defaultModel);
       })
       .catch(() => {
         setImageModels([]);
@@ -337,7 +334,8 @@ export default function HomePage() {
 
   function handleImageError(id: string) {
     const currentModel = fallbackModelMap[id] || selectedModel;
-    const nextModel = getNextFallbackModel(currentModel);
+    const availableNames = imageModels.map((m) => m.name);
+    const nextModel = getNextFallbackModel(currentModel, availableNames);
     if (nextModel) {
       setFallbackModelMap((prev) => ({ ...prev, [id]: nextModel }));
     } else {

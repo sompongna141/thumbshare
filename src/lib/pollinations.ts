@@ -25,7 +25,7 @@ async function pollinationsText(
   if (!key) throw new Error("Missing Pollinations user key");
   const model = getTextModel();
   const res = await fetch(
-    `https://gen.pollinations.ai/openai/chat/completions`,
+    `https://text.pollinations.ai/openai/chat/completions`,
     {
       method: "POST",
       headers: {
@@ -72,10 +72,10 @@ export function extractJson(text: string): any {
   }
 }
 
-export function buildThumbnailImageUrl(prompt: string, key?: string, model = "flux", retryCount = 0): string {
+export function buildThumbnailImageUrl(prompt: string, key?: string, model = "sana", retryCount = 0): string {
   const maxPromptChars = 1500;
   const safePrompt = prompt.length > maxPromptChars ? prompt.slice(0, maxPromptChars) + "..." : prompt;
-  const base = "https://gen.pollinations.ai/image/";
+  const base = "https://image.pollinations.ai/prompt/";
   const encoded = encodeURIComponent(safePrompt);
   const seed = Math.floor(Math.random() * 1000000) + retryCount * 1000000;
   const url = `${base}${encoded}?width=1280&height=720&seed=${seed}&model=${encodeURIComponent(model)}`;

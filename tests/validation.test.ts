@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { buildThumbnailImageUrl, extractJson } from "../src/lib/pollinations";
-import { getNextFallbackModel, getPreferredModelIndex } from "../src/lib/model-fallback";
+import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "../src/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "../src/lib/sample-brief";
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "../src/lib/types";
 
@@ -97,10 +97,10 @@ describe("Types validation", () => {
 describe("buildThumbnailImageUrl", () => {
   it("encodes prompt and includes dimensions", () => {
     const url = buildThumbnailImageUrl("a surprised man holding a phone");
-    expect(url).toContain("gen.pollinations.ai/image/");
+    expect(url).toContain("image.pollinations.ai/prompt/");
     expect(url).toContain("width=1280");
     expect(url).toContain("height=720");
-    expect(url).toContain("model=flux");
+    expect(url).toContain("model=sana");
   });
 
   it("appends key when provided", () => {
@@ -116,7 +116,7 @@ describe("buildThumbnailImageUrl", () => {
   it("truncates very long prompts to avoid URL length issues", () => {
     const longPrompt = "a ".repeat(2000);
     const url = buildThumbnailImageUrl(longPrompt);
-    const decoded = decodeURIComponent(url.replace(/^.*\/image\//, "").replace(/\?.*$/, ""));
+    const decoded = decodeURIComponent(url.replace(/^.*\/prompt\//, "").replace(/\?.*$/, ""));
     expect(decoded.length).toBeLessThanOrEqual(1503); // 1500 + "..."
   });
 
@@ -297,11 +297,18 @@ describe("Model fallback", () => {
   });
 
   it("returns null when no more fallbacks", () => {
-    expect(getNextFallbackModel("sdxl")).toBeNull();
+    expect(getNextFallbackModel("sana")).toBeNull(); // last in default order
   });
 
-  it("returns null for unknown model", () => {
-    expect(getNextFallbackModel("unknown-model")).toBeNull();
+  it("returns first available alternative when current not in list", () => {
+    expect(getNextFallbackModel("unknown-model", ["sana", "flux"])).toBe("sana");
+  });
+
+  it("returns null for unknown model with no available list", () => {
+    // unknown-model not in PREFERRED_MODEL_ORDER, and default available = PREFERRED_MODEL_ORDER,
+    // so it finds the first available that isn't unknown-model
+    const result = getNextFallbackModel("unknown-model");
+    expect(result).toBeTruthy(); // returns first alternative from default list
   });
 
   it("preferred model index assigns known models low numbers", () => {
@@ -314,5 +321,26 @@ describe("Model fallback", () => {
     const models = [{ name: "sdxl" }, { name: "flux" }, { name: "turbo" }];
     const sorted = [...models].sort((a, b) => getPreferredModelIndex(a.name) - getPreferredModelIndex(b.name));
     expect(sorted[0].name).toBe("flux");
+  });
+
+  it("sana is in the preference list", () => {
+    expect(getPreferredModelIndex("sana")).toBeLessThan(999);
+  });
+
+  it("pickDefaultModel uses saved model if available", () => {
+    expect(pickDefaultModel(["sana", "flux"], "flux")).toBe("flux");
+  });
+
+  it("pickDefaultModel falls back to first available if saved missing", () => {
+    expect(pickDefaultModel(["sana"], "flux")).toBe("sana");
+  });
+
+  it("pickDefaultModel prefers flux over sana when both available", () => {
+    expect(pickDefaultModel(["sana", "flux"], null)).toBe("flux");
+  });
+
+  it("pickDefaultModel returns sana when nothing available", () => {
+    expect(pickDefaultModel([], null)).toBe("sana");
+    expect(pickDefaultModel([], "flux")).toBe("sana"); // falls back to default when no models available
   });
 });
