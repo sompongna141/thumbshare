@@ -66,3 +66,11 @@
 2. If the Pollinations text API takes longer than 30s, the request aborts.
 3. **Expected:** user sees a clear "timed out" error message, not a hanging spinner.
 4. User can retry immediately.
+
+## Scenario 9: Markdown export
+1. Generate concepts.
+2. Click **Export Markdown**.
+3. **Expected:** a `.md` file downloads containing a structured markdown packet with brief metadata, all 6 concepts (with headings, face expressions, text overlay, color psychology, A/B hint, platform notes, and image prompt in a code block), plus the A/B test plan.
+4. Star 2 concepts.
+5. Click **Export starred Markdown**.
+6. **Expected:** a smaller `.md` file downloads containing only the starred concepts and A/B plan.

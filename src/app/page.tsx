@@ -11,6 +11,7 @@ import { PollinationsModel } from "@/lib/pollinations-models";
 import { buildThumbnailImageUrl, generatePlaceholderSvg } from "@/lib/pollinations";
 import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "@/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "@/lib/sample-brief";
+import { buildMarkdownPacket } from "@/lib/export";
 
 function getStoredKey(): string | null {
   try {
@@ -352,6 +353,31 @@ export default function HomePage() {
     });
   }
 
+  function handleExportMarkdown() {
+    if (!result) return;
+    const md = buildMarkdownPacket(result);
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `thumbsnare-${result.brief.videoTitle.replace(/\s+/g, "-").toLowerCase()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleExportStarredMarkdown() {
+    if (!result) return;
+    if (starred.size === 0) return;
+    const md = buildMarkdownPacket(result, starred);
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `thumbsnare-${result.brief.videoTitle.replace(/\s+/g, "-").toLowerCase()}-starred.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function handleExportJson() {
     if (!result) return;
     const blob = new Blob([JSON.stringify(result, null, 2)], {
@@ -572,6 +598,9 @@ export default function HomePage() {
               <button className="btn secondary" onClick={handleExportJson}>
                 Export JSON
               </button>
+              <button className="btn secondary" onClick={handleExportMarkdown}>
+                Export Markdown
+              </button>
               <button className="btn secondary" onClick={() => window.print()}>
                 Print
               </button>
@@ -617,6 +646,12 @@ export default function HomePage() {
                 onClick={handleExportStarredJson}
               >
                 Export starred JSON
+              </button>
+              <button
+                className="btn secondary small"
+                onClick={handleExportStarredMarkdown}
+              >
+                Export starred Markdown
               </button>
             </div>
           )}
