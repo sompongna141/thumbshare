@@ -1,4 +1,23 @@
 
+## 2026-06-01 05:45 UTC
+
+**Focus:** UX polish sprint — workflow step tracking + model filtering robustness.
+
+- **Workflow step tracker:** Added `WORKFLOW_STEPS` constant (Spark → Market → Direction) with step labels, titles, and descriptions. `currentStep` state tracks where the user is. Form validation errors now auto-navigate to the relevant step (missing title/angle → Spark, missing auth → Direction).
+- **Brief completion indicator:** Added `briefCompletion` useMemo that counts filled fields (videoTitle, angle, topicCategory, targetAudience, channelContext, constraints, tone) and reports percent complete. Provides user-facing progress signal.
+- **Model filtering hardening:** `/api/pollinations/models` now filters out `paid_only` models and video models, keeping only free image-generation models. Same logic synced to `pollinations-models.ts` client-side fetcher. Prevents users from selecting models that will 401 or return video.
+- **Build cache cleanup:** `.next` directory had root-owned stale artifacts from prior dev server. Renamed to `.next.bak`, committed, then amended commit to exclude backup directory. Build now clean.
+- **Tests:** 59/59 passing. Lint clean.
+- **Git commit:** `7e2fb5b` (amended to `beca067` after removing backup dir).
+
+**Phase unchanged:** `deploy_prep`.
+
+**Blockers unchanged:**
+1. Human-provided GitHub remote / Vercel account details needed.
+2. Real Pollinations user key needed for final end-to-end smoke test.
+
+---
+
 ## 2026-06-01 03:45 UTC
 
 **Focus:** Markdown export feature + commit previous uncommitted changes.

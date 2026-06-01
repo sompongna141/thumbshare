@@ -2,8 +2,8 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-01T03:52:00Z",
-  "summary": "Shipped Markdown export (all + starred) for concept packs, refactored clipboard copy to use the same builder for consistency. Added 9 export unit tests (59/59 passing). QA Scenario 9 added for markdown export. Previous uncommitted changes (SVG placeholder, timeout protection, 50 tests) committed. Build + lint clean.",
+  "updatedAt": "2026-06-01T05:52:00Z",
+  "summary": "Committed prior-run UX improvements: workflow step tracker (Spark → Market → Direction), brief completion progress indicator, paid-only/video model filtering in model API. Build + lint + 59/59 tests passing. Still awaiting human GitHub/Vercel credentials and real BYOP key for final deploy steps.",
   "currentFocus": "Deploy readiness. Core workflow complete and well-tested. UX polish and export quality improved. App is waiting on human-provided GitHub/Vercel credentials + real BYOP key for final e2e smoke test.",
   "nextTasks": [
     "Validate end-to-end generation with real BYOP user key (external dependency)",
