@@ -269,6 +269,33 @@ button { font: inherit; }
 
 .card-img-wrap { position: relative; background: var(--bg-2); min-height: 180px; }
 .card-img-wrap img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+.concept-preview-image {
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out);
+}
+.concept-preview-image.loaded { opacity: 1; }
+.image-loading-state {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-xs); aspect-ratio: 16/9;
+  padding: var(--space-lg); text-align: center;
+  background:
+    linear-gradient(110deg, var(--surface) 30%, var(--card-hover) 50%, var(--surface) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.image-loading-spinner {
+  width: 24px; height: 24px; margin-bottom: var(--space-xs);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.image-loading-label {
+  color: var(--text); font-size: var(--text-sm); font-weight: 700;
+}
+.image-loading-hint {
+  max-width: 260px; color: var(--muted); font-size: var(--text-xs); line-height: 1.4;
+}
 
 .img-fallback {
   width: 100%; aspect-ratio: 16/9; display: flex; flex-direction: column;
@@ -297,7 +324,11 @@ button { font: inherit; }
 .prompt-details summary { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-2); cursor: pointer; padding: 2px 0; transition: color var(--duration-fast); }
 .prompt-details summary:hover { color: var(--accent-2-hover); }
 .prompt-full { font-size: var(--text-xs); color: var(--muted); line-height: 1.45; margin-top: var(--space-xs); padding: var(--space-md); background: var(--bg); border-radius: var(--radius-xs); max-height: 200px; overflow-y: auto; }
-.card-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-xs); }
+.card-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-xs); flex-wrap: wrap; }
+.download-btn { margin-left: auto; }
+.download-error {
+  color: #fca5a5; font-size: var(--text-xs); line-height: 1.4;
+}
 
 .star-btn { background: var(--surface) !important; color: var(--muted) !important; border: 1px solid var(--border) !important; font-size: var(--text-lg) !important; padding: 2px var(--space-xs) !important; line-height: 1; width: 32px !important; height: 32px !important; }
 .star-btn.starred { color: var(--accent-2) !important; border-color: var(--accent-2) !important; background: var(--accent-2-soft) !important; }
@@ -756,6 +787,8 @@ button { font: inherit; }
   .landing-footer-inner { flex-direction: column; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .concept-preview-image { transition: none; }
+  .image-loading-state, .image-loading-spinner { animation: none; }
   .hero-card { transition: none; }
   .hero-cta-primary { transition: none; }
   .feature-item { transition: none; }

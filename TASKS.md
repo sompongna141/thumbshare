@@ -27,6 +27,7 @@
 
 - [x] build Pollinations image URL builder for each concept
 - [x] show concept cards with generated image previews
+- [x] show per-image rendering state after concept generation completes
 - [x] allow per-concept regeneration
 
 ## Phase 4 — Export / packaging ✅
@@ -36,6 +37,8 @@
 - [x] export as JSON download
 - [x] copy-to-clipboard for individual concepts
 - [x] copy-to-clipboard for all concepts
+- [x] download each final thumbnail as a 1280×720 PNG
+- [x] bake post-processed text styles and placement into downloaded PNGs
 
 ## Phase 5 — Auth & QA
 
@@ -61,7 +64,7 @@
 ## Phase 7 — Deploy readiness
 
 - [x] write README.md for the app
-- [x] verify build / lint / typecheck / tests pass (108/108 passing)
+- [x] verify build / lint / typecheck / tests pass (111/111 passing)
 - [x] write DEPLOY.md with env and Vercel steps
 - [x] initialize dedicated git repo (main branch)
 - [x] add /api/config route for runtime config (mock enabled, app key)

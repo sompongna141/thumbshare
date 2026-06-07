@@ -12,6 +12,12 @@ import {
   getTextMode,
   getTextModeLabel,
 } from "@/lib/text-overlay";
+import {
+  buildThumbnailFilename,
+  createThumbnailPng,
+  normalizeOverlayPlacement,
+  triggerBlobDownload,
+} from "@/lib/thumbnail-download";
 
 const COLOR_MAP: Record<string, string> = {
   red: "#ef4444", blue: "#3b82f6", yellow: "#eab308", green: "#22c55e",
@@ -22,32 +28,6 @@ const COLOR_MAP: Record<string, string> = {
 function swatchColor(c: string): string {
   if (c.startsWith("#")) return c;
   return COLOR_MAP[c.toLowerCase()] || "#666";
-}
-
-function overlayPlacementClass(placement: string): string {
-  const normalized = placement
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-  const aliases: Record<string, string> = {
-    top: "top-center",
-    bottom: "bottom-center",
-    left: "left-center",
-    right: "right-center",
-    "upper-left": "top-left",
-    "upper-center": "top-center",
-    "upper-right": "top-right",
-    "lower-left": "bottom-left",
-    "lower-center": "bottom-center",
-    "lower-right": "bottom-right",
-  };
-  const supported = new Set([
-    "top-left", "top-center", "top-right",
-    "left-center", "center", "right-center",
-    "bottom-left", "bottom-center", "bottom-right",
-  ]);
-  const candidate = aliases[normalized] || normalized;
-  return supported.has(candidate) ? candidate : "bottom-center";
 }
 
 interface Props {
@@ -85,16 +65,22 @@ export function ConceptCard({
 }: Props) {
   const [retryCount, setRetryCount] = useState(0);
   const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const [loadedImageUrl, setLoadedImageUrl] = useState<string | null>(null);
+  const [downloadState, setDownloadState] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   useEffect(() => {
     setShowPlaceholder(false);
     setRetryCount(0);
+    setLoadedImageUrl(null);
+    setDownloadState("idle");
   }, [concept.imagePrompt, concept.conceptName]);
 
   const hasText = concept.textOverlay.text.trim().length > 0;
   const textMode = getTextMode(brief);
   const textStyle = getConceptTextStyle(concept, brief);
-  const placementClass = overlayPlacementClass(concept.textOverlay.placement);
+  const placementClass = normalizeOverlayPlacement(concept.textOverlay.placement);
 
   const imageUrl = useMemo(
     () =>
@@ -106,6 +92,23 @@ export function ConceptCard({
       ),
     [concept, brief, clientKey, imageModel, retryCount]
   );
+  const imageLoaded = loadedImageUrl === imageUrl;
+
+  useEffect(() => {
+    setDownloadState("idle");
+  }, [imageUrl]);
+
+  async function handleDownload() {
+    setDownloadState("loading");
+    try {
+      const png = await createThumbnailPng(imageUrl, concept, brief);
+      triggerBlobDownload(png, buildThumbnailFilename(concept));
+      setDownloadState("success");
+      window.setTimeout(() => setDownloadState("idle"), 2000);
+    } catch {
+      setDownloadState("error");
+    }
+  }
 
   return (
     <div className={`concept-card ${density === "compact" ? "compact" : ""}`}>
@@ -115,7 +118,12 @@ export function ConceptCard({
             src={imageUrl}
             alt={concept.conceptName}
             loading="lazy"
-            onError={onImageError}
+            className={`concept-preview-image ${imageLoaded ? "loaded" : ""}`}
+            onLoad={() => setLoadedImageUrl(imageUrl)}
+            onError={() => {
+              setLoadedImageUrl(null);
+              onImageError();
+            }}
           />
         ) : showPlaceholder ? (
           <img
@@ -152,7 +160,14 @@ export function ConceptCard({
             </div>
           </div>
         )}
-        {hasText && textMode === "post-process" && !imageError && !showPlaceholder && (
+        {!imageLoaded && !imageError && !showPlaceholder && (
+          <div className="image-loading-state" role="status" aria-live="polite">
+            <span className="image-loading-spinner" aria-hidden="true" />
+            <span className="image-loading-label">Generating preview...</span>
+            <span className="image-loading-hint">The concept is ready. The image is still rendering.</span>
+          </div>
+        )}
+        {hasText && textMode === "post-process" && imageLoaded && !imageError && !showPlaceholder && (
           <div
             className={`preview-text-overlay text-style-${textStyle} placement-${placementClass}`}
             aria-hidden="true"
@@ -238,7 +253,30 @@ export function ConceptCard({
           >
             {regenerating ? "Regenerating..." : "Regenerate"}
           </button>
+          <button
+            className="btn secondary small download-btn"
+            onClick={handleDownload}
+            disabled={!imageLoaded || downloadState === "loading"}
+            title={
+              textMode === "post-process"
+                ? "Download a 1280×720 PNG with the text overlay applied"
+                : "Download the generated image as a 1280×720 PNG"
+            }
+          >
+            {downloadState === "loading"
+              ? "Preparing PNG..."
+              : downloadState === "success"
+                ? "Downloaded"
+                : downloadState === "error"
+                  ? "Retry download"
+                  : "Download PNG"}
+          </button>
         </div>
+        {downloadState === "error" && (
+          <div className="download-error" role="alert">
+            Download failed. Check the image connection and try again.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -122,3 +122,13 @@
 6. Add another brief so there are 2 entries.
 7. Click **Clear all history**.
 8. **Expected:** confirm prompt appears; on confirm, history is empty.
+
+## Scenario 15: Image loading + PNG download
+1. Generate any set of concepts.
+2. When the concept skeletons finish, observe each image area.
+3. **Expected:** each card shows **Generating preview...** until its remote image loads, then fades the image in.
+4. In **Post-process** text mode, click **Download PNG** on a loaded concept.
+5. **Expected:** a 1280×720 PNG downloads with the chosen overlay text, style, and placement baked into the pixels.
+6. Repeat with **Generate in image** and **No text** modes.
+7. **Expected:** the generated image downloads without an additional app-rendered text layer.
+8. While an image is still loading, **Expected:** its download button is disabled.

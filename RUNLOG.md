@@ -1,3 +1,23 @@
+## 2026-06-07 09:43 UTC
+
+**Focus:** Per-image loading feedback + final PNG download
+
+**Shipped:**
+- Added a second-stage loading state to each concept card after concept JSON is ready but the remote image is still rendering.
+- Added image fade-in and reduced-motion handling.
+- Added **Download PNG** per concept at 1280×720.
+- Post-process mode now burns the selected text, style, and placement into the downloaded PNG with Canvas.
+- Generated-in-image and no-text modes export the model image without adding duplicate lettering.
+- Added a same-origin, Pollinations-only image proxy with protocol, host, path, content-type, and 12 MB validation.
+- Loading skeleton count now follows the selected 3 / 4 / 6 / 8 concept count.
+
+**Verification:**
+- 111/111 Vitest tests passing.
+- TypeScript lint and production build passing.
+- Production runtime: `/studio` returns 200 and `/api/image/proxy` rejects a non-Pollinations host with 400.
+- Browser automation remains unavailable because no supported browser is installed on this host.
+- Live image download still requires a real BYOP key for final external smoke testing.
+
 ## 2026-06-07 09:20 UTC
 
 **Focus:** Text rendering modes + style presets

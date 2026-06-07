@@ -2,8 +2,8 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-07T09:20:00Z",
-  "summary": "Users can choose post-processed text, generated-in-image text, or no text, with per-concept AI recommendations and four predefined styles. All modes are wired through prompts, previews, exports, persistence, and runtime validation. 108/108 tests pass.",
+  "updatedAt": "2026-06-07T09:43:00Z",
+  "summary": "Concept cards now show a dedicated image-rendering indicator after strategy generation finishes, then fade previews in when loaded. Users can download 1280x720 PNGs; post-processed text is baked into the file, while generated/no-text modes export the model result. 111/111 tests pass.",
   "currentFocus": "Deploy readiness. Core workflow complete, components split, UX improved. Pending: e2e with real BYOP key, GitHub/Vercel credentials.",
   "nextTasks": [
     "Push git repo to GitHub remote (requires human-provided token/account)",
@@ -29,6 +29,9 @@
     "deterministicPreviewText": true,
     "textGenerationModes": true,
     "textStylePresets": true,
+    "perImageLoadingState": true,
+    "thumbnailPngDownload": true,
+    "downloadedOverlayComposition": true,
     "conceptCountSelector": true,
     "modelSelectorInDirection": true,
     "jsonGenerationRetry": true,
@@ -45,6 +48,7 @@
     "No channel brand memory or persistent user accounts.",
     "Currently only sana image model available on Pollinations API; flux and other models may return later.",
     "End-to-end generation quality not yet validated with real Pollinations user key.",
+    "PNG download composition is build- and unit-tested but still needs a live BYOP image smoke test.",
     "Mock mode produces tone-aware placeholder concepts for safe dev testing but does not exercise live LLM quality.",
     "Sandbox root-owned .next cache blocks dev server from starting after a prior root-owned build; production build and server are unaffected."
   ]

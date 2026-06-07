@@ -41,7 +41,7 @@ POLLINATIONS_ALLOW_MOCK=false
 ```bash
 npm install
 npm run lint        # TypeScript typecheck via tsc --noEmit
-npm test            # Vitest suite (108 tests)
+npm test            # Vitest suite (111 tests)
 npm run build       # Production build (Next.js standalone output)
 npm run start       # Start on port 3100 (or set PORT)
 npm run dev         # Dev server on port 3100
@@ -59,7 +59,7 @@ npm run dev         # Dev server on port 3100
 
 - [x] Build passes
 - [x] Lint/typecheck passes
-- [x] Test suite passes (108/108)
+- [x] Test suite passes (111/111)
 - [x] BYOP auth flow UI present (connect → disconnect)
 - [x] Export features work (JSON, clipboard, print)
 - [x] Error states are handled gracefully

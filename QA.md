@@ -31,7 +31,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (108/108 Vitest tests)
+- [x] test suite passes (111/111 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences

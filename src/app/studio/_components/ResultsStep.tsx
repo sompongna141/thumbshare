@@ -115,7 +115,7 @@ export function ResultsStep(props: Props) {
 
       {loading && !result && (
         <div className="concepts-grid">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: brief.conceptCount || 6 }).map((_, i) => (
             <div className="concept-card skeleton" key={i}>
               <div className="skeleton-img" />
               <div className="skeleton-bar wide" />

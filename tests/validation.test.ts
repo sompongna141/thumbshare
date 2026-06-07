@@ -14,6 +14,11 @@ import {
   getResolvedTextStyle,
   getTextMode,
 } from "../src/lib/text-overlay";
+import { parseAllowedImageUrl } from "../src/lib/image-proxy";
+import {
+  buildThumbnailFilename,
+  normalizeOverlayPlacement,
+} from "../src/lib/thumbnail-download";
 
 // ── Mock concept data for tests ──
 
@@ -239,6 +244,39 @@ describe("text overlay modes and styles", () => {
         recommendedBrief
       )
     ).toBe("impact");
+  });
+});
+
+describe("thumbnail download helpers", () => {
+  it("accepts only Pollinations prompt image URLs", () => {
+    expect(
+      parseAllowedImageUrl(
+        "https://gen.pollinations.ai/image/prompt/test?width=1280&height=720"
+      )?.hostname
+    ).toBe("gen.pollinations.ai");
+    expect(parseAllowedImageUrl("https://example.com/image/prompt/test")).toBeNull();
+    expect(parseAllowedImageUrl("http://gen.pollinations.ai/image/prompt/test")).toBeNull();
+    expect(parseAllowedImageUrl("https://gen.pollinations.ai/image/models")).toBeNull();
+    expect(
+      parseAllowedImageUrl("https://gen.pollinations.ai@127.0.0.1/image/prompt/test")
+    ).toBeNull();
+  });
+
+  it("normalizes overlay placement aliases and unknown values", () => {
+    expect(normalizeOverlayPlacement("upper-left")).toBe("top-left");
+    expect(normalizeOverlayPlacement("Bottom")).toBe("bottom-center");
+    expect(normalizeOverlayPlacement("right")).toBe("right-center");
+    expect(normalizeOverlayPlacement("somewhere unusual")).toBe("bottom-center");
+  });
+
+  it("builds a safe PNG filename", () => {
+    expect(
+      buildThumbnailFilename({
+        ...mockConcept,
+        id: "#01",
+        conceptName: "Map Chaos: Big Stare!",
+      })
+    ).toBe("thumbsnare-01-map-chaos-big-stare.png");
   });
 });
 
