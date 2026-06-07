@@ -69,6 +69,6 @@ npm run dev         # Dev server on port 3100
 - [x] Sample briefs cover multiple niches (6: marketing, tech, travel, gaming, finance, family)
 - [x] No hidden owner spend key in production runtime
 - [ ] Core workflow tested end-to-end with real BYOP key (external dependency)
-- [ ] GitHub repo pushed to remote (requires human-provided token/account)
+- [x] GitHub repo pushed to remote (`https://github.com/sompongna141/thumbshare.git`)
 - [ ] Vercel project created and connected to GitHub repo (requires human-provided account)
 - [ ] POLLINATIONS_ALLOW_MOCK=false in production environment

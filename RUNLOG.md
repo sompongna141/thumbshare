@@ -1,3 +1,16 @@
+## 2026-06-07 16:05 UTC
+
+**Focus:** GitHub publish
+
+**Shipped:**
+- Added `origin` remote: `https://github.com/sompongna141/thumbshare.git`.
+- Pushed local `main` to GitHub and set it to track `origin/main`.
+- Verified local `HEAD` matches `origin/main`.
+
+**Next:**
+- Create/connect Vercel project.
+- Run final BYOP live generation smoke test.
+
 ## 2026-06-07 09:43 UTC
 
 **Focus:** Per-image loading feedback + final PNG download

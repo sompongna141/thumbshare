@@ -2,17 +2,16 @@
   "slug": "youtube-thumbnail-studio",
   "status": "active_build",
   "phase": "deploy_prep",
-  "updatedAt": "2026-06-07T09:43:00Z",
+  "updatedAt": "2026-06-07T16:05:00Z",
   "summary": "Concept cards now show a dedicated image-rendering indicator after strategy generation finishes, then fade previews in when loaded. Users can download 1280x720 PNGs; post-processed text is baked into the file, while generated/no-text modes export the model result. 111/111 tests pass.",
-  "currentFocus": "Deploy readiness. Core workflow complete, components split, UX improved. Pending: e2e with real BYOP key, GitHub/Vercel credentials.",
+  "currentFocus": "Deploy readiness. Core workflow complete, components split, UX improved, and GitHub remote published. Pending: Vercel setup and e2e with real BYOP key.",
   "nextTasks": [
-    "Push git repo to GitHub remote (requires human-provided token/account)",
     "Create Vercel project and connect to GitHub repo (requires human-provided account)",
     "Validate end-to-end generation with real BYOP user key (external dependency)",
     "Set POLLINATIONS_ALLOW_MOCK=false in production environment"
   ],
   "blockers": [
-    "Need human-provided GitHub remote / Vercel account details to publish repo and create production project.",
+    "Need human-provided Vercel account details to create production project.",
     "Need real Pollinations user key to fully validate generation end-to-end. Mock mode provides safe dev testing but does not replace live API quality validation.",
     "Dev server runs into root-owned .next cache permission issue in this sandbox. Production build + production server are fully functional."
   ],
@@ -23,7 +22,7 @@
     "docsReady": true,
     "deployReady": false,
     "deployed": false,
-    "githubPublished": false,
+    "githubPublished": true,
     "homepageBuilt": true,
     "textOverlayToggle": true,
     "deterministicPreviewText": true,

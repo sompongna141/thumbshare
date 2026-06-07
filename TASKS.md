@@ -88,7 +88,7 @@
 - [x] add per-entry history delete and Clear all
 - [x] close dropdown menus on click-outside and Escape key
 - [x] print CSS hides new density toggle and export spacer
-- [ ] push git repo to GitHub remote (requires human-provided token/account)
+- [x] push git repo to GitHub remote (`https://github.com/sompongna141/thumbshare.git`)
 - [ ] create Vercel project and connect to GitHub repo (requires human-provided account)
 - [ ] validate end-to-end generation with real BYOP user key (external dependency)
 - [ ] set POLLINATIONS_ALLOW_MOCK=false in production environment
