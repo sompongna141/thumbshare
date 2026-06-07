@@ -74,3 +74,41 @@
 4. Star 2 concepts.
 5. Click **Export starred Markdown**.
 6. **Expected:** a smaller `.md` file downloads containing only the starred concepts and A/B plan.
+
+## Scenario 10: Text overlay toggle
+1. Open the app and start a brief.
+2. On Step 2 (Audience), find the **Thumbnail Text Overlay** toggle.
+3. Click **No text**.
+4. **Expected:** hint reads "Thumbnails will be text-free. Concepts lean on face expression, props, and color contrast."
+5. Proceed to Step 3 and click **Generate 6 Concepts**.
+6. **Expected:** 6 concepts with `textOverlay.text: ""`, `textOverlay.placement: "none"`. Each concept card shows a "No text" tag in the header and the "Text Overlay" section reads "Text-free thumbnail — relies on expression and color". Image prompts must not contain "bold text overlay", "text on", "font", or "wordmark".
+7. If an image fails and the placeholder SVG renders, the SVG should display a "TEXT-FREE THUMBNAIL" badge instead of the bold text line.
+8. Toggle back to **With text** and regenerate. Concepts should include short text overlay + placement as before.
+
+## Scenario 11: Wizard draft persistence
+1. Open the app, type a video title and angle.
+2. Advance to Step 2, fill in audience and category.
+3. Refresh the browser.
+4. **Expected:** form fields are restored to the values you entered, and the wizard returns to Step 2.
+5. Click **Start fresh** on Step 1.
+6. **Expected:** step resets to 1, brief is empty, results are cleared.
+
+## Scenario 12: Shortlist persistence + density toggle
+1. Generate concepts.
+2. Star 2 concepts.
+3. Refresh the browser.
+4. **Expected:** both stars are still on after reload (shortlist persisted).
+5. Click **Compact** in the results toolbar.
+6. **Expected:** grid switches to a tighter layout, prompt details collapse.
+7. Refresh.
+8. **Expected:** Compact view is still selected.
+
+## Scenario 13: History management
+1. Generate with 2 different briefs.
+2. Click **History ▾**.
+3. **Expected:** 2 entries shown with date + title.
+4. Click the × on one entry.
+5. **Expected:** entry removed, dropdown stays open.
+6. Add another brief so there are 2 entries.
+7. Click **Clear all history**.
+8. **Expected:** confirm prompt appears; on confirm, history is empty.

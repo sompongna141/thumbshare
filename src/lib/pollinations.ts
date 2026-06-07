@@ -100,7 +100,17 @@ export function generatePlaceholderSvg(concept: ThumbnailConcept): string {
   const name = concept.conceptName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const text = concept.textOverlay.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const face = concept.faceExpression.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><rect width="1280" height="720" fill="#0f0f0f"/><rect x="60" y="60" width="1160" height="600" rx="24" fill="${fill}" opacity="0.12"/><text x="640" y="280" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="42" font-weight="700" fill="#e5e5e5">${name}</text><text x="640" y="380" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff">${text || "THUMBNAIL"}</text><text x="640" y="480" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="28" fill="#a1a1aa">${face}</text><text x="640" y="580" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" fill="#52525b">Preview unavailable • Pollinations image API</text></svg>`;
+  const hasText = text.trim().length > 0;
+  // Build the layout. For text-free thumbnails we drop the big text line and move face up.
+  const textLine = hasText
+    ? `<text x="640" y="380" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="64" font-weight="800" fill="#ffffff">${text}</text>`
+    : "";
+  const faceY = hasText ? 480 : 410;
+  const noteY = hasText ? 580 : 520;
+  const textFreeNote = hasText
+    ? ""
+    : `<text x="640" y="370" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="22" font-weight="600" fill="#a1a1aa" letter-spacing="2">TEXT-FREE THUMBNAIL</text>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><rect width="1280" height="720" fill="#0f0f0f"/><rect x="60" y="60" width="1160" height="600" rx="24" fill="${fill}" opacity="0.12"/><text x="640" y="280" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="42" font-weight="700" fill="#e5e5e5">${name}</text>${textFreeNote}${textLine}<text x="640" y="${faceY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="28" fill="#a1a1aa">${face}</text><text x="640" y="${noteY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" fill="#52525b">Preview unavailable • Pollinations image API</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
@@ -116,6 +126,19 @@ export function buildThumbnailImageUrl(prompt: string, key?: string, model = "fl
 }
 
 function conceptPromptBuilder(brief: ThumbnailBrief): string {
+  const wantsText = brief.textOverlay !== false; // default true
+  const textRules = wantsText
+    ? `Text overlay requirements:
+- For each concept, supply a textOverlay object with concrete text (3-5 words max) and a specific placement (top-left, center, bottom-center, top-right, etc.).
+- Text must be a bold sans-serif, instantly readable at 150px.
+- Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
+- Vary the text across the 6 concepts so the A/B plan can pair text-heavy vs text-light variants.`
+    : `Text overlay requirements:
+- The user has explicitly opted out of text overlays. Do NOT include any text on the thumbnail.
+- The imagePrompt must not reference text, words, letters, or typography. Describe only the visual scene.
+- For textOverlay in the JSON, use { "text": "", "placement": "none" } and explain in platformNotes that the thumbnail is text-free.
+- Lean into stronger subject expression, prop clarity, and color contrast to compensate for the missing text.`;
+
   return `You are a YouTube thumbnail strategist. Generate 6 thumbnail concepts for this video. Each concept must be designed specifically for YouTube's 16:9 format and must work at 150px wide on mobile.
 
 Video Title: ${brief.videoTitle}
@@ -123,6 +146,7 @@ Angle / Topic: ${brief.angle}
 Category: ${brief.topicCategory}
 Target Audience: ${brief.targetAudience}
 Tone: ${brief.tone}
+Text overlay on thumbnail: ${wantsText ? "YES - include text on each concept" : "NO - text-free thumbnails only"}
 ${brief.channelContext ? `Channel Context: ${brief.channelContext}` : ""}
 ${brief.constraints ? `Constraints: ${brief.constraints}` : ""}
 
@@ -137,7 +161,7 @@ Rules for image prompts:
 - Include 1 specific prop or object that anchors the story.
 
 Visual hierarchy rules:
-- Foreground: face or hands are the dominant element (60–70% of frame).
+- Foreground: face or hands are the dominant element (60-70% of frame).
 - Mid-ground: 1 anchoring prop that tells the story.
 - Background: flat color or subtle gradient; never busy scenery or detailed rooms.
 - Keep at least 30% of the frame as negative space for text readability.
@@ -153,35 +177,29 @@ Face expression taxonomy by tone:
 - aspirational: confident chin-up smile, relaxed shoulders, direct eye contact, glow of success.
 If the topic does not logically include a face, use an extreme close-up of hands, an object in dramatic motion, or a bold typographic shape as the dominant element instead.
 
-Typography rules:
-- Text on thumbnail: 3–5 words maximum.
-- Bold sans-serif font, thick stroke or drop-shadow for legibility at 150px.
-- Avoid thin fonts, script fonts, or more than 2 typefaces.
-- Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
-- Preferred placements: top-left, center, bottom-center, or top-right.
+${textRules}
 
 YouTube-specific CTR best practices:
 - Thumbnails are judged in 0.5 seconds at 150px wide on mobile.
 - High contrast between subject and background.
-- Single clear focal point — no collage layouts.
-- If using text, it must be instantly readable; if no text, the visual must be unmistakable.
+- Single clear focal point - no collage layouts.
 - Colors that pop on white/light backgrounds: red, yellow, teal, orange, saturated blue.
 - Avoid placing the subject's face in the exact center; use rule of thirds for visual tension.
 - Test close-up face versus wider shot with prop context.
-- Test text-heavy versus text-light variants.
+${wantsText ? "- Test text-heavy versus text-light variants." : "- Since this is text-free, the A/B plan should test different expressions, prop compositions, or color treatments instead."}
 
 For each concept, provide:
 - id: "1" through "6"
-- conceptName: 3–5 words
+- conceptName: 3-5 words
 - imagePrompt: detailed prompt following the rules above
 - faceExpression: describe the expression or reaction shown
-- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, bottom-right, etc.) }
+- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, bottom-right, etc.) }${wantsText ? "" : " - use empty text and placement 'none' since the user opted out of text overlays"}
 - colorPsychology: { primaryColor: dominant color (hex or name), contrastNote: why it pops on YouTube white background, emotion: emotional trigger }
 - abVariantHint: one specific change for an A/B test variant
-- platformNotes: note about mobile vs desktop visibility
+- platformNotes: note about mobile vs desktop visibility${wantsText ? "" : " - explicitly note that the thumbnail is text-free"}
 
 Also provide:
-- abPlan: a concise 3-step A/B testing plan tailored to this video's topic and tone. Each step must pair two specific concepts from the generated set and state exactly what visual variable differs between them (e.g., face close-up vs. prop context, text-heavy vs. text-light, high saturation vs. muted palette). Do not use generic steps like "choose top 2 concepts."
+- abPlan: a concise 3-step A/B testing plan tailored to this video's topic and tone. Each step must pair two specific concepts from the generated set and state exactly what visual variable differs between them (e.g., face close-up vs. prop context, text-heavy vs. text-light${wantsText ? "" : ", expression A vs expression B, prop A vs prop B, color palette A vs B"}). Do not use generic steps like "choose top 2 concepts."
 
 Return ONLY valid JSON in this exact shape:
 {
@@ -206,29 +224,43 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
     aspirational: { expr: "confident smile, chin up", color: "gold", emotion: "luxury and achievement", contrast: "Metallic shimmer on flat white" },
   };
   const toneInfo = tones[brief.tone] || tones.curiosity;
-  const concepts = Array.from({ length: 6 }, (_, i) => ({
-    id: String(i + 1),
-    conceptName: (() => {
-      const words = brief.videoTitle.split(/\s+/).filter(w => w.length > 2);
-      const keyword = words.slice(0, 2).join(" ");
-      const variants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip"];
-      return `${keyword || brief.tone} ${variants[i] || `Variant ${i + 1}`}`;
-    })(),
-    imagePrompt: `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, bold text overlay, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`,
-    faceExpression: toneInfo.expr,
-    textOverlay: {
-      text: i % 2 === 0 ? brief.videoTitle.split(" ").slice(0, 3).join(" ").toUpperCase() : "WATCH THIS",
-      placement: ["bottom-center", "top-left", "center", "bottom-right", "top-center", "bottom-left"][i],
-    },
-    colorPsychology: {
-      primaryColor: toneInfo.color,
-      contrastNote: toneInfo.contrast,
-      emotion: toneInfo.emotion,
-    },
-    abVariantHint: `Swap ${toneInfo.color} background for its complementary color`,
-    platformNotes: "Readable at 150px on mobile; text kept under 5 words for scanability.",
-  }));
-  return JSON.stringify({ concepts, abPlan: `1. Test concept #1 (${toneInfo.color} close-up) vs #3 (curiosity angle) for 48h each.\n2. If #1 wins, run a ${toneInfo.color} vs complementary color background A/B.\n3. Apply winner and measure CTR uplift against channel average.` });
+  const wantsText = brief.textOverlay !== false;
+  const wordVariants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip"];
+  const placements = ["bottom-center", "top-left", "center", "bottom-right", "top-center", "bottom-left"];
+  const concepts = Array.from({ length: 6 }, (_, i) => {
+    const words = brief.videoTitle.split(/\s+/).filter(w => w.length > 2);
+    const keyword = words.slice(0, 2).join(" ");
+    const conceptName = `${keyword || brief.tone} ${wordVariants[i] || `Variant ${i + 1}`}`;
+    const overlayText = i % 2 === 0
+      ? brief.videoTitle.split(" ").slice(0, 3).join(" ").toUpperCase()
+      : "WATCH THIS";
+    return {
+      id: String(i + 1),
+      conceptName,
+      imagePrompt: wantsText
+        ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, bold text overlay, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`
+        : `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, NO TEXT NO WORDS NO LETTERS typography-free composition, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`,
+      faceExpression: toneInfo.expr,
+      textOverlay: wantsText
+        ? { text: overlayText, placement: placements[i] }
+        : { text: "", placement: "none" },
+      colorPsychology: {
+        primaryColor: toneInfo.color,
+        contrastNote: toneInfo.contrast,
+        emotion: toneInfo.emotion,
+      },
+      abVariantHint: wantsText
+        ? `Swap ${toneInfo.color} background for its complementary color`
+        : `Swap expression to a wider-eyed variant of the same ${toneInfo.color} palette`,
+      platformNotes: wantsText
+        ? "Readable at 150px on mobile; text kept under 5 words for scanability."
+        : "Text-free thumbnail; relies on subject expression and color contrast for 0.5s judgment.",
+    };
+  });
+  const abPlan = wantsText
+    ? `1. Test concept #1 (${toneInfo.color} close-up) vs #3 (curiosity angle) for 48h each.\n2. If #1 wins, run a ${toneInfo.color} vs complementary color background A/B.\n3. Apply winner and measure CTR uplift against channel average.`
+    : `1. Test concept #1 (${toneInfo.color} close-up) vs #3 (text-free prop focus) for 48h each.\n2. If #1 wins, run a ${toneInfo.color} vs complementary color background A/B.\n3. Apply winner and measure CTR uplift against channel average.`;
+  return JSON.stringify({ concepts, abPlan });
 }
 
 export async function generateThumbnailConcepts(

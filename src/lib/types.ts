@@ -4,6 +4,8 @@ export interface ThumbnailBrief {
   topicCategory: string;
   targetAudience: string;
   tone: "dramatic" | "funny" | "educational" | "controversial" | "emotional" | "curiosity" | "fear" | "aspirational";
+  /** Whether the thumbnail should include a text overlay. Default true. */
+  textOverlay?: boolean;
   channelContext?: string;
   constraints?: string;
 }

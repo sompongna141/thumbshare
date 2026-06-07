@@ -248,6 +248,67 @@ describe("Mock mode", () => {
     });
   }, 10000);
 
+  it("textOverlay: false brief produces text-free concepts", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const noTextBrief: ThumbnailBrief = { ...sampleBriefs[0], textOverlay: false };
+    const result = await generateThumbnailConcepts(noTextBrief, "mock");
+    expect(result.concepts).toHaveLength(6);
+    result.concepts.forEach((c) => {
+      expect(c.textOverlay.text).toBe("");
+      expect(c.textOverlay.placement).toBe("none");
+      // imagePrompt must be text-free (no typography-positive phrasing, no font/text/wordmark references)
+      const lower = c.imagePrompt.toLowerCase();
+      expect(lower).not.toContain("bold text overlay");
+      expect(lower).not.toContain("text on");
+      expect(lower).not.toContain("font");
+      expect(lower).not.toContain("wordmark");
+      // platformNotes must mention text-free
+      expect(c.platformNotes.toLowerCase()).toContain("text-free");
+    });
+    // abPlan must still mention a different variable than text (since text A/B is meaningless)
+    expect(result.abPlan.toLowerCase()).not.toContain("text-heavy");
+  }, 10000);
+
+  it("textOverlay: true is the default when field is omitted", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const defaultBrief: ThumbnailBrief = {
+      videoTitle: "Default Brief",
+      angle: "no field provided for textOverlay at all",
+      topicCategory: "test",
+      targetAudience: "test",
+      tone: "curiosity",
+    };
+    const result = await generateThumbnailConcepts(defaultBrief, "mock");
+    result.concepts.forEach((c) => {
+      expect(c.textOverlay.text.length).toBeGreaterThan(0);
+      expect(c.textOverlay.placement).not.toBe("none");
+    });
+  }, 10000);
+
+  it("textOverlay: false sample brief travels through the full prompt", () => {
+    const noTextSamples = sampleBriefs.filter((b) => b.textOverlay === false);
+    expect(noTextSamples.length).toBeGreaterThan(0);
+    noTextSamples.forEach((b) => {
+      expect(b.videoTitle.length).toBeGreaterThanOrEqual(3);
+      expect(b.angle.length).toBeGreaterThanOrEqual(5);
+    });
+  });
+
+  it("placeholder SVG handles text-free concept gracefully", () => {
+    const textFreeConcept: ThumbnailConcept = {
+      ...mockConcept,
+      textOverlay: { text: "", placement: "none" },
+    };
+    const url = generatePlaceholderSvg(textFreeConcept);
+    expect(url).toMatch(/^data:image\/svg\+xml,/);
+    const decoded = decodeURIComponent(url.replace(/^data:image\/svg\+xml,/, ""));
+    // Should mark the thumbnail as text-free
+    expect(decoded).toContain("TEXT-FREE THUMBNAIL");
+    // Should still embed concept name and face
+    expect(decoded).toContain(mockConcept.conceptName);
+    expect(decoded).toContain(mockConcept.faceExpression);
+  });
+
   it("platform notes are present", async () => {
     const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
     const result = await generateThumbnailConcepts(sampleBriefs[0], "mock");

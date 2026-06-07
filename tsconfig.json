@@ -34,8 +34,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next2/types/**/*.ts",
+    ".next3/types/**/*.ts",
     "next-env.d.ts",
-    ".next3/types/**/*.ts"
+    "/tmp/thumbsnare-dist/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

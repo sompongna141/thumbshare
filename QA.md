@@ -31,7 +31,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (59/59 Vitest tests)
+- [x] test suite passes (86/86 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
@@ -72,3 +72,17 @@ These require a real Pollinations user key and/or production deployment to confi
 10. /api/config route returns correct runtime config without leaking secrets
 11. Image model auto-fallback works across all 5 models in preference chain with real API
 12. Prompt quality improvements (anti-AI-slop, visual hierarchy, face taxonomy, typography, CTR rules) produce measurably better live output than previous scaffolding
+
+## Refactor + persistence (completed)
+
+- [x] Studio page split into focused components (TopBar, StepIndicator, HookStep, AudienceStep, DirectionStep, ResultsStep, ConceptCard, ExportToolbar, SampleMenu, HistoryMenu, ManualKeyBand)
+- [x] useThumbnailStudio hook owns all state, effects, API, export logic
+- [x] Wizard draft (step + brief) persisted to localStorage and restored on reload
+- [x] Shortlist persisted to localStorage and restored on reload
+- [x] Comfortable / Compact density toggle with localStorage persistence
+- [x] Brief completion progress bar on Step 1
+- [x] Text overlay toggle (with-text / no-text) on Step 2, threaded through prompt builder and mock generator
+- [x] Error banner with inline Retry button
+- [x] History per-entry delete and Clear all
+- [x] Dropdown menus close on click-outside and Escape
+- [x] Print CSS hides density toggle and export spacer

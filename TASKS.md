@@ -68,6 +68,17 @@
 - [x] fix stale .next/types tsconfig noise
 - [x] add per-concept regeneration prompt injection
 - [x] add mock-mode QA scenarios
+- [x] refactor studio page into components (TopBar, StepIndicator, HookStep, AudienceStep, DirectionStep, ResultsStep, ConceptCard, ExportToolbar, SampleMenu, HistoryMenu, ManualKeyBand)
+- [x] extract useThumbnailStudio hook for all state, effects, API, export logic
+- [x] add text overlay toggle (with-text / no-text) threaded through prompt builder and mock generator
+- [x] persist wizard draft (step + brief) to localStorage and restore on reload
+- [x] persist shortlist to localStorage and restore on reload
+- [x] add comfortable / compact density toggle for results grid with persistence
+- [x] add brief completion progress bar on Step 1
+- [x] add error banner with inline Retry button on results
+- [x] add per-entry history delete and Clear all
+- [x] close dropdown menus on click-outside and Escape key
+- [x] print CSS hides new density toggle and export spacer
 - [ ] push git repo to GitHub remote (requires human-provided token/account)
 - [ ] create Vercel project and connect to GitHub repo (requires human-provided account)
 - [ ] validate end-to-end generation with real BYOP user key (external dependency)
