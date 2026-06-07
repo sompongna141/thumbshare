@@ -2,18 +2,11 @@
 
 import React from "react";
 import type { ByopState } from "@/lib/types";
-import type { PollinationsModel } from "@/lib/pollinations-models";
 
 interface TopBarProps {
   byop: ByopState;
   loginUrl: string;
   onDisconnect: () => void;
-  imageModels: PollinationsModel[];
-  selectedModel: string;
-  onSelectModel: (m: string) => void;
-  manualKeyInput: string;
-  onManualKeyInputChange: (s: string) => void;
-  onUseKey: () => void;
   title: string;
 }
 
@@ -21,12 +14,6 @@ export function TopBar({
   byop,
   loginUrl,
   onDisconnect,
-  imageModels,
-  selectedModel,
-  onSelectModel,
-  manualKeyInput,
-  onManualKeyInputChange,
-  onUseKey,
   title,
 }: TopBarProps) {
   return (
@@ -54,20 +41,6 @@ export function TopBar({
           <button className="btn secondary small" onClick={onDisconnect}>
             Disconnect
           </button>
-        )}
-        {imageModels.length > 0 && (
-          <select
-            className="model-select"
-            value={selectedModel}
-            onChange={(e) => onSelectModel(e.target.value)}
-            aria-label="Image model"
-          >
-            {imageModels.map((m) => (
-              <option key={m.name} value={m.name}>
-                {m.name}
-              </option>
-            ))}
-          </select>
         )}
       </div>
     </header>

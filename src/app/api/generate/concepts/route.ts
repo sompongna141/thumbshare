@@ -24,7 +24,8 @@ export async function POST(request: Request) {
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 35000);
+    // Allow one structured retry when the upstream model returns truncated JSON.
+    const timeout = setTimeout(() => controller.abort(), 65000);
     try {
       const result = await generateThumbnailConcepts(brief, clientKey, controller.signal);
       return NextResponse.json(result);

@@ -19,10 +19,17 @@ function getTextModel(): string {
   return process.env.POLLINATIONS_TEXT_MODEL || "openai";
 }
 
+function getConceptCount(brief: ThumbnailBrief): 3 | 4 | 6 | 8 {
+  return brief.conceptCount && [3, 4, 6, 8].includes(brief.conceptCount)
+    ? brief.conceptCount
+    : 6;
+}
+
 async function pollinationsText(
   messages: { role: string; content: string }[],
   clientKey?: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  maxTokens = 8192
 ): Promise<string> {
   const key = getApiKey(clientKey);
   if (!key) throw new Error("Missing Pollinations user key");
@@ -45,7 +52,12 @@ async function pollinationsText(
             ? { "x-app-key": getPollinationsAppKey() }
             : {}),
         },
-        body: JSON.stringify({ model, messages, stream: false }),
+        body: JSON.stringify({
+          model,
+          messages,
+          stream: false,
+          max_tokens: maxTokens,
+        }),
         signal: controller.signal,
       }
     );
@@ -63,28 +75,89 @@ async function pollinationsText(
   }
 }
 
+/**
+ * Find a balanced JSON object or array at a specific offset. The stack tracks
+ * nested objects and arrays while ignoring brackets inside JSON strings.
+ */
+function findBalancedJsonAt(text: string, start: number): string | null {
+  if (text[start] !== "{" && text[start] !== "[") return null;
+  const stack: string[] = [];
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escape) {
+        escape = false;
+      } else if (ch === "\\") {
+        escape = true;
+      } else if (ch === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{" || ch === "[") {
+      stack.push(ch);
+      continue;
+    }
+    if (ch === "}" || ch === "]") {
+      const expected = ch === "}" ? "{" : "[";
+      if (stack.pop() !== expected) return null;
+      if (stack.length === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
+function parseJsonCandidate(candidate: string): any {
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return JSON.parse(candidate.replace(/,(\s*[}\]])/g, "$1"));
+  }
+}
+
+function parseJsonFromText(text: string): any {
+  const trimmed = text.trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Models sometimes wrap JSON in prose or append a short explanation.
+  }
+
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== "{" && text[i] !== "[") continue;
+    const candidate = findBalancedJsonAt(text, i);
+    if (!candidate) continue;
+    try {
+      return parseJsonCandidate(candidate);
+    } catch {
+      // Keep scanning in case an earlier prose bracket was not the payload.
+    }
+  }
+  throw new Error("No complete JSON object or array found");
+}
+
 export function extractJson(text: string): any {
   if (!text || typeof text !== "string") throw new Error("Empty or non-string response from LLM");
-  const match = text.match(/```json\s*([\s\S]*?)```/);
-  if (match) {
+
+  // Prefer a fenced payload, then scan the full response for balanced JSON.
+  const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlock) {
     try {
-      return JSON.parse(match[1]);
-    } catch (e) {
-      throw new Error(`Failed to parse JSON in markdown block: ${(e as Error).message}`);
-    }
-  }
-  const idx = text.indexOf("{");
-  if (idx !== -1) {
-    const candidate = text.slice(idx);
-    try {
-      return JSON.parse(candidate);
+      return parseJsonFromText(codeBlock[1]);
     } catch {
-      // ignore
+      // Fall through because a later unfenced payload may still be valid.
     }
   }
+
   try {
-    return JSON.parse(text);
-  } catch (e) {
+    return parseJsonFromText(text);
+  } catch {
     throw new Error(`Response is not valid JSON. First 200 chars: ${text.slice(0, 200).replace(/\n/g, " ")}`);
   }
 }
@@ -125,21 +198,33 @@ export function buildThumbnailImageUrl(prompt: string, key?: string, model = "fl
   return url;
 }
 
+export function buildPreviewImagePrompt(concept: ThumbnailConcept): string {
+  const placement = concept.textOverlay.placement || "open side";
+  if (concept.textOverlay.text.trim()) {
+    return `${concept.imagePrompt}
+Composition requirement: leave clean negative space at ${placement} for a separate text overlay. Do not render words, letters, captions, logos, or watermarks inside the generated image.`;
+  }
+  return `${concept.imagePrompt}
+Text-free requirement: do not render words, letters, captions, logos, or watermarks anywhere in the image.`;
+}
+
 function conceptPromptBuilder(brief: ThumbnailBrief): string {
   const wantsText = brief.textOverlay !== false; // default true
+  const count = getConceptCount(brief);
   const textRules = wantsText
     ? `Text overlay requirements:
 - For each concept, supply a textOverlay object with concrete text (3-5 words max) and a specific placement (top-left, center, bottom-center, top-right, etc.).
 - Text must be a bold sans-serif, instantly readable at 150px.
 - Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
-- Vary the text across the 6 concepts so the A/B plan can pair text-heavy vs text-light variants.`
+- The app renders the text overlay itself. The imagePrompt must reserve clean negative space at the selected placement and must not ask the image model to draw letters or words.
+- Vary the text across the ${count} concepts so the A/B plan can pair text-heavy vs text-light variants.`
     : `Text overlay requirements:
 - The user has explicitly opted out of text overlays. Do NOT include any text on the thumbnail.
 - The imagePrompt must not reference text, words, letters, or typography. Describe only the visual scene.
 - For textOverlay in the JSON, use { "text": "", "placement": "none" } and explain in platformNotes that the thumbnail is text-free.
 - Lean into stronger subject expression, prop clarity, and color contrast to compensate for the missing text.`;
 
-  return `You are a YouTube thumbnail strategist. Generate 6 thumbnail concepts for this video. Each concept must be designed specifically for YouTube's 16:9 format and must work at 150px wide on mobile.
+  return `You are a YouTube thumbnail strategist. Generate ${count} thumbnail concepts for this video. Each concept must be designed specifically for YouTube's 16:9 format and must work at 150px wide on mobile.
 
 Video Title: ${brief.videoTitle}
 Angle / Topic: ${brief.angle}
@@ -189,17 +274,17 @@ YouTube-specific CTR best practices:
 ${wantsText ? "- Test text-heavy versus text-light variants." : "- Since this is text-free, the A/B plan should test different expressions, prop compositions, or color treatments instead."}
 
 For each concept, provide:
-- id: "1" through "6"
+- id: "1" through "${count}"
 - conceptName: 3-5 words
 - imagePrompt: detailed prompt following the rules above
 - faceExpression: describe the expression or reaction shown
-- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, bottom-right, etc.) }${wantsText ? "" : " - use empty text and placement 'none' since the user opted out of text overlays"}
+- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, right-center, etc.) }${wantsText ? "" : " - use empty text and placement 'none' since the user opted out of text overlays"}
 - colorPsychology: { primaryColor: dominant color (hex or name), contrastNote: why it pops on YouTube white background, emotion: emotional trigger }
 - abVariantHint: one specific change for an A/B test variant
 - platformNotes: note about mobile vs desktop visibility${wantsText ? "" : " - explicitly note that the thumbnail is text-free"}
 
 Also provide:
-- abPlan: a concise 3-step A/B testing plan tailored to this video's topic and tone. Each step must pair two specific concepts from the generated set and state exactly what visual variable differs between them (e.g., face close-up vs. prop context, text-heavy vs. text-light${wantsText ? "" : ", expression A vs expression B, prop A vs prop B, color palette A vs B"}). Do not use generic steps like "choose top 2 concepts."
+- abPlan: a concise ${count <= 4 ? "2" : "3"}-step A/B testing plan tailored to this video's topic and tone. Each step must pair two specific concepts from the generated set and state exactly what visual variable differs between them (e.g., face close-up vs. prop context, text-heavy vs. text-light${wantsText ? "" : ", expression A vs expression B, prop A vs prop B, color palette A vs B"}). Do not use generic steps like "choose top 2 concepts."
 
 Return ONLY valid JSON in this exact shape:
 {
@@ -225,9 +310,10 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
   };
   const toneInfo = tones[brief.tone] || tones.curiosity;
   const wantsText = brief.textOverlay !== false;
-  const wordVariants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip"];
-  const placements = ["bottom-center", "top-left", "center", "bottom-right", "top-center", "bottom-left"];
-  const concepts = Array.from({ length: 6 }, (_, i) => {
+  const count = getConceptCount(brief);
+  const wordVariants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip", "Mood Shift", "Bold Frame"];
+  const placements = ["bottom-center", "top-left", "center", "right-center", "top-center", "bottom-left", "top-right", "left-center"];
+  const concepts = Array.from({ length: count }, (_, i) => {
     const words = brief.videoTitle.split(/\s+/).filter(w => w.length > 2);
     const keyword = words.slice(0, 2).join(" ");
     const conceptName = `${keyword || brief.tone} ${wordVariants[i] || `Variant ${i + 1}`}`;
@@ -238,7 +324,7 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
       id: String(i + 1),
       conceptName,
       imagePrompt: wantsText
-        ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, bold text overlay, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`
+        ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, clean negative space at ${placements[i]} for a separate overlay, no embedded letters or words, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`
         : `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, NO TEXT NO WORDS NO LETTERS typography-free composition, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`,
       faceExpression: toneInfo.expr,
       textOverlay: wantsText
@@ -274,12 +360,44 @@ export async function generateThumbnailConcepts(
     return finalizeResult(brief, parsed);
   }
   const prompt = conceptPromptBuilder(brief);
+  const expectedCount = getConceptCount(brief);
+  const parsePayload = (responseText: string): any => {
+    const payload = extractJson(responseText);
+    if (!Array.isArray(payload?.concepts) || payload.concepts.length !== expectedCount) {
+      throw new Error(`Expected ${expectedCount} concepts`);
+    }
+    return payload;
+  };
   const text = await pollinationsText(
     [{ role: "user", content: prompt }],
     clientKey,
     signal
   );
-  const parsed = extractJson(text);
+  let parsed: any;
+  try {
+    parsed = parsePayload(text);
+  } catch {
+    const retryPrompt = `${prompt}
+
+STRICT RETRY REQUIREMENTS:
+- The previous response was incomplete or malformed.
+- Return one complete JSON object and nothing else.
+- Return exactly ${expectedCount} concepts.
+- Keep each imagePrompt between 35 and 70 words so the response fits within the output limit.
+- Escape every quote and control character inside JSON strings.`;
+    const retryText = await pollinationsText(
+      [{ role: "user", content: retryPrompt }],
+      clientKey,
+      signal
+    );
+    try {
+      parsed = parsePayload(retryText);
+    } catch {
+      throw new Error(
+        `The model returned incomplete JSON twice. Retry, choose fewer concepts, or select another model.`
+      );
+    }
+  }
   const concepts: ThumbnailConcept[] = (parsed.concepts || []).map(
     (c: any, idx: number) => ({
       id: String(c.id || idx + 1),

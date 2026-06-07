@@ -19,6 +19,7 @@ export function briefCompletion(b: ThumbnailBrief): { filled: number; total: num
     { ok: (b.channelContext?.trim().length ?? 0) > 0 },
     { ok: (b.constraints?.trim().length ?? 0) > 0 },
     { ok: b.textOverlay !== undefined },
+    { ok: b.conceptCount !== undefined },
   ];
   const filled = checks.filter((c) => c.ok).length;
   return { filled, total: checks.length, ratio: filled / checks.length };

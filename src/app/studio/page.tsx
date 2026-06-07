@@ -19,12 +19,6 @@ export default function StudioPage() {
         byop={s.byop}
         loginUrl={s.loginUrl}
         onDisconnect={s.handleDisconnect}
-        imageModels={s.imageModels}
-        selectedModel={s.selectedModel}
-        onSelectModel={s.setSelectedModel}
-        manualKeyInput={s.manualKeyInput}
-        onManualKeyInputChange={s.setManualKeyInput}
-        onUseKey={() => s.handleConnectKey(s.manualKeyInput)}
         title="ThumbSnare — YouTube Thumbnail Studio"
       />
 
@@ -81,7 +75,9 @@ export default function StudioPage() {
             onGenerate={() => void s.handleGenerate()}
             loading={s.loading}
             hasKey={!!s.byop.key}
+            imageModels={s.imageModels}
             selectedModel={s.selectedModel}
+            onSelectModel={s.setSelectedModel}
             error={s.error}
           />
         )}

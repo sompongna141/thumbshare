@@ -34,7 +34,7 @@
 4. **Expected:** error banner with descriptive message, skeleton hidden.
 
 ## Scenario 4: Image model switching
-1. Open Image model dropdown.
+1. Proceed to Step 3 (Direction) and open the **Image model** dropdown.
 2. Select a different model (e.g., `kontext` instead of `flux`).
 3. Click **Generate**.
 4. **Expected:** image URLs include `model=kontext` param.
@@ -77,15 +77,24 @@
 
 ## Scenario 10: Text overlay toggle
 1. Open the app and start a brief.
-2. On Step 2 (Audience), find the **Thumbnail Text Overlay** toggle.
+2. On Step 3 (Direction), find the **Thumbnail Text Overlay** toggle.
 3. Click **No text**.
 4. **Expected:** hint reads "Thumbnails will be text-free. Concepts lean on face expression, props, and color contrast."
-5. Proceed to Step 3 and click **Generate 6 Concepts**.
+5. Select **6** concepts and click **Generate 6 Concepts**.
 6. **Expected:** 6 concepts with `textOverlay.text: ""`, `textOverlay.placement: "none"`. Each concept card shows a "No text" tag in the header and the "Text Overlay" section reads "Text-free thumbnail — relies on expression and color". Image prompts must not contain "bold text overlay", "text on", "font", or "wordmark".
 7. If an image fails and the placeholder SVG renders, the SVG should display a "TEXT-FREE THUMBNAIL" badge instead of the bold text line.
-8. Toggle back to **With text** and regenerate. Concepts should include short text overlay + placement as before.
+8. Toggle back to **With text** and regenerate. Each generated preview must visibly show the exact overlay copy at its requested placement; lettering must not depend on the image model.
 
-## Scenario 11: Wizard draft persistence
+## Scenario 11: Concept count + malformed JSON recovery
+1. On Step 3 (Direction), select each count: **3**, **4**, **6**, and **8**.
+2. Generate after each selection.
+3. **Expected:** the button label and results count match the selected value exactly.
+4. With a live key, force or encounter a model response wrapped in prose or followed by commentary.
+5. **Expected:** balanced JSON is extracted and generation succeeds.
+6. If the first response is truncated or malformed, **Expected:** the server retries once with shorter image prompts.
+7. If both attempts are incomplete, **Expected:** show a concise recovery message suggesting retry, fewer concepts, or another model.
+
+## Scenario 12: Wizard draft persistence
 1. Open the app, type a video title and angle.
 2. Advance to Step 2, fill in audience and category.
 3. Refresh the browser.
@@ -93,7 +102,7 @@
 5. Click **Start fresh** on Step 1.
 6. **Expected:** step resets to 1, brief is empty, results are cleared.
 
-## Scenario 12: Shortlist persistence + density toggle
+## Scenario 13: Shortlist persistence + density toggle
 1. Generate concepts.
 2. Star 2 concepts.
 3. Refresh the browser.
@@ -103,7 +112,7 @@
 7. Refresh.
 8. **Expected:** Compact view is still selected.
 
-## Scenario 13: History management
+## Scenario 14: History management
 1. Generate with 2 different briefs.
 2. Click **History ▾**.
 3. **Expected:** 2 entries shown with date + title.

@@ -17,7 +17,7 @@
 
 ## Phase 2 — Concept generation ✅
 
-- [x] implement thumbnail concept generator (6 concepts)
+- [x] implement thumbnail concept generator with selectable count (3, 4, 6, or 8)
 - [x] structure output: image prompt, face expression, text overlay, color notes, A/B hint
 - [x] add anti-generic prompt scaffolding (no "vibrant", no "eye-catching")
 - [x] wire API route (`POST /api/generate/concepts`)
@@ -71,6 +71,9 @@
 - [x] refactor studio page into components (TopBar, StepIndicator, HookStep, AudienceStep, DirectionStep, ResultsStep, ConceptCard, ExportToolbar, SampleMenu, HistoryMenu, ManualKeyBand)
 - [x] extract useThumbnailStudio hook for all state, effects, API, export logic
 - [x] add text overlay toggle (with-text / no-text) threaded through prompt builder and mock generator
+- [x] move text overlay and image model controls to Direction
+- [x] add selectable concept count (3 / 4 / 6 / 8)
+- [x] harden JSON extraction and retry one malformed/truncated generation
 - [x] persist wizard draft (step + brief) to localStorage and restore on reload
 - [x] persist shortlist to localStorage and restore on reload
 - [x] add comfortable / compact density toggle for results grid with persistence

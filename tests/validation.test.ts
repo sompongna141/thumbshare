@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { buildThumbnailImageUrl, extractJson, generatePlaceholderSvg } from "../src/lib/pollinations";
+import {
+  buildPreviewImagePrompt,
+  buildThumbnailImageUrl,
+  extractJson,
+  generatePlaceholderSvg,
+} from "../src/lib/pollinations";
 import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "../src/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "../src/lib/sample-brief";
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "../src/lib/types";
@@ -50,6 +55,29 @@ describe("extractJson", () => {
     expect(data).toEqual({ c: 3 });
   });
 
+  it("parses JSON followed by model commentary", () => {
+    const data = extractJson('{"concepts":[{"id":"1"}],"abPlan":"test"}\nDone.');
+    expect(data.concepts[0].id).toBe("1");
+  });
+
+  it("parses nested arrays and braces inside strings", () => {
+    const data = extractJson(
+      'Result: {"concepts":[{"imagePrompt":"Map {upside down} [close-up]","tags":["face","map"]}]} trailing'
+    );
+    expect(data.concepts[0].tags).toEqual(["face", "map"]);
+  });
+
+  it("accepts trailing commas from imperfect model output", () => {
+    const data = extractJson('{"concepts":[{"id":"1",},],"abPlan":"test",}');
+    expect(data.concepts).toHaveLength(1);
+  });
+
+  it("rejects a truncated JSON response", () => {
+    expect(() =>
+      extractJson('{"concepts":[{"id":"1","imagePrompt":"upside-down map')
+    ).toThrow("not valid JSON");
+  });
+
   it("throws on empty string", () => {
     expect(() => extractJson("")).toThrow("Empty or non-string");
   });
@@ -59,7 +87,7 @@ describe("extractJson", () => {
   });
 
   it("throws on malformed JSON in markdown block", () => {
-    expect(() => extractJson('```json\n{not json}\n```')).toThrow("Failed to parse JSON");
+    expect(() => extractJson('```json\n{not json}\n```')).toThrow("not valid JSON");
   });
 });
 
@@ -146,6 +174,23 @@ describe("buildThumbnailImageUrl", () => {
   });
 });
 
+describe("buildPreviewImagePrompt", () => {
+  it("reserves space for deterministic UI text without asking the model to spell it", () => {
+    const prompt = buildPreviewImagePrompt(mockConcept);
+    expect(prompt).toContain("leave clean negative space at bottom-center");
+    expect(prompt).toContain("Do not render words, letters");
+  });
+
+  it("keeps no-text concepts free of generated lettering", () => {
+    const prompt = buildPreviewImagePrompt({
+      ...mockConcept,
+      textOverlay: { text: "", placement: "none" },
+    });
+    expect(prompt).toContain("Text-free requirement");
+    expect(prompt).toContain("do not render words, letters");
+  });
+});
+
 // ── Concept shape ──
 
 describe("Concept shape", () => {
@@ -213,6 +258,20 @@ describe("Mock mode", () => {
       expect(c.faceExpression).toBeTruthy();
     });
   }, 10000);
+
+  it.each([3, 4, 6, 8] as const)(
+    "returns the requested %i concepts",
+    async (conceptCount) => {
+      const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+      const result = await generateThumbnailConcepts(
+        { ...sampleBriefs[0], conceptCount },
+        "mock"
+      );
+      expect(result.concepts).toHaveLength(conceptCount);
+      expect(result.brief.conceptCount).toBe(conceptCount);
+    },
+    10000
+  );
 
   it("derives concept names from video title keywords", async () => {
     const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
@@ -324,6 +383,63 @@ describe("Mock mode", () => {
       expect(c.abVariantHint.length).toBeGreaterThan(0);
     });
   }, 10000);
+});
+
+describe("Live response recovery", () => {
+  const livePayload = (count: number) =>
+    JSON.stringify({
+      concepts: Array.from({ length: count }, (_, i) => ({
+        ...mockConcept,
+        id: String(i + 1),
+        conceptName: `Recovered ${i + 1}`,
+      })),
+      abPlan: "Compare the recovered concepts.",
+    });
+
+  const apiResponse = (content: string) => ({
+    ok: true,
+    json: async () => ({
+      choices: [{ message: { content } }],
+    }),
+  });
+
+  it("retries once after truncated JSON", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(apiResponse('{"concepts":[{"id":"1"'))
+      .mockResolvedValueOnce(apiResponse(livePayload(3)));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+      const result = await generateThumbnailConcepts(
+        { ...sampleBriefs[0], conceptCount: 3 },
+        "live-test-key"
+      );
+      expect(result.concepts).toHaveLength(3);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("retries when valid JSON contains the wrong concept count", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(apiResponse(livePayload(2)))
+      .mockResolvedValueOnce(apiResponse(livePayload(4)));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+      const result = await generateThumbnailConcepts(
+        { ...sampleBriefs[0], conceptCount: 4 },
+        "live-test-key"
+      );
+      expect(result.concepts).toHaveLength(4);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 // ── Tone options ──

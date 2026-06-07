@@ -84,7 +84,7 @@ export function ResultsStep(props: Props) {
         {loading && !result
           ? "Generating your concepts..."
           : result
-            ? `6 concepts for \u201C${result.brief.videoTitle}\u201D`
+            ? `${result.concepts.length} concepts for \u201C${result.brief.videoTitle}\u201D`
             : "Your thumbnail concepts"}
       </h2>
       <p className="step-subtitle">

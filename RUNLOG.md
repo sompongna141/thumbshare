@@ -1,3 +1,25 @@
+## 2026-06-07 08:22 UTC
+
+**Focus:** Direction controls + variable concept count + malformed JSON recovery
+
+**Shipped:**
+- Moved Thumbnail Text Overlay from Audience to Direction.
+- Added deterministic text rendering over generated previews, so exact overlay copy and placement no longer depend on the image model spelling correctly.
+- Moved the image model selector from the top bar to Direction.
+- Added a 3 / 4 / 6 / 8 concept selector; prompt generation, mock generation, button labels, saved briefs, and results headers honor the selected count.
+- Increased text completion allowance with `max_tokens: 8192`.
+- Rebuilt JSON extraction around balanced object/array scanning so fenced payloads, leading/trailing prose, nested structures, and trailing commas parse safely.
+- Added one automatic generation retry with shorter image prompts when the first model response is malformed or truncated.
+- Replaced raw parser failures after two attempts with a concise recovery message.
+- Added regression coverage for JSON edge cases and every supported concept count.
+
+**Verification:**
+- 99/99 Vitest tests passing, including preview prompt rules and automatic retry after truncated JSON or wrong concept count.
+- `tsc --noEmit` passing.
+- Next.js production build passing.
+- Standalone runtime: `/studio` and `/api/health` return 200.
+- Mock API: text-on returns exactly 3 concepts with overlays; text-off returns exactly 8 concepts with empty text and `placement: "none"`.
+
 ## 2026-06-07 07:48 UTC
 
 **Focus:** Studio refactor + text overlay toggle + UX polish + persistence

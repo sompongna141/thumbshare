@@ -6,6 +6,8 @@ export interface ThumbnailBrief {
   tone: "dramatic" | "funny" | "educational" | "controversial" | "emotional" | "curiosity" | "fear" | "aspirational";
   /** Whether the thumbnail should include a text overlay. Default true. */
   textOverlay?: boolean;
+  /** How many concepts to generate. Default 6. Valid: 3, 4, 6, 8. */
+  conceptCount?: 3 | 4 | 6 | 8;
   channelContext?: string;
   constraints?: string;
 }

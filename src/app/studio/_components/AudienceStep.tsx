@@ -49,35 +49,6 @@ export function AudienceStep({ brief, setBrief, onBack, onNext, error }: Props) 
         />
       </div>
 
-      <div className="field">
-        <label>
-          Thumbnail Text Overlay
-        </label>
-        <div className="text-toggle-row">
-          <button
-            type="button"
-            className={`text-toggle-btn ${brief.textOverlay !== false ? "selected" : ""}`}
-            onClick={() => setBrief((b) => ({ ...b, textOverlay: true }))}
-            aria-pressed={brief.textOverlay !== false}
-          >
-            With text
-          </button>
-          <button
-            type="button"
-            className={`text-toggle-btn ${brief.textOverlay === false ? "selected" : ""}`}
-            onClick={() => setBrief((b) => ({ ...b, textOverlay: false }))}
-            aria-pressed={brief.textOverlay === false}
-          >
-            No text
-          </button>
-        </div>
-        <p className="field-hint">
-          {brief.textOverlay === false
-            ? "Thumbnails will be text-free. Concepts lean on face expression, props, and color contrast."
-            : "Each concept will include a short text overlay and placement."}
-        </p>
-      </div>
-
       <div className="nav-row">
         <button className="btn secondary" onClick={onBack}>
           Back

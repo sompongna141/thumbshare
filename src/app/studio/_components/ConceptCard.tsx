@@ -2,7 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import type { ThumbnailConcept } from "@/lib/types";
-import { buildThumbnailImageUrl, generatePlaceholderSvg } from "@/lib/pollinations";
+import {
+  buildPreviewImagePrompt,
+  buildThumbnailImageUrl,
+  generatePlaceholderSvg,
+} from "@/lib/pollinations";
 
 const COLOR_MAP: Record<string, string> = {
   red: "#ef4444", blue: "#3b82f6", yellow: "#eab308", green: "#22c55e",
@@ -13,6 +17,32 @@ const COLOR_MAP: Record<string, string> = {
 function swatchColor(c: string): string {
   if (c.startsWith("#")) return c;
   return COLOR_MAP[c.toLowerCase()] || "#666";
+}
+
+function overlayPlacementClass(placement: string): string {
+  const normalized = placement
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const aliases: Record<string, string> = {
+    top: "top-center",
+    bottom: "bottom-center",
+    left: "left-center",
+    right: "right-center",
+    "upper-left": "top-left",
+    "upper-center": "top-center",
+    "upper-right": "top-right",
+    "lower-left": "bottom-left",
+    "lower-center": "bottom-center",
+    "lower-right": "bottom-right",
+  };
+  const supported = new Set([
+    "top-left", "top-center", "top-right",
+    "left-center", "center", "right-center",
+    "bottom-left", "bottom-center", "bottom-right",
+  ]);
+  const candidate = aliases[normalized] || normalized;
+  return supported.has(candidate) ? candidate : "bottom-center";
 }
 
 interface Props {
@@ -54,12 +84,19 @@ export function ConceptCard({
     setRetryCount(0);
   }, [concept.imagePrompt, concept.conceptName]);
 
-  const imageUrl = useMemo(
-    () => buildThumbnailImageUrl(concept.imagePrompt, clientKey, imageModel, retryCount),
-    [concept.imagePrompt, clientKey, imageModel, retryCount]
-  );
-
   const hasText = concept.textOverlay.text.trim().length > 0;
+  const placementClass = overlayPlacementClass(concept.textOverlay.placement);
+
+  const imageUrl = useMemo(
+    () =>
+      buildThumbnailImageUrl(
+        buildPreviewImagePrompt(concept),
+        clientKey,
+        imageModel,
+        retryCount
+      ),
+    [concept, clientKey, imageModel, retryCount]
+  );
 
   return (
     <div className={`concept-card ${density === "compact" ? "compact" : ""}`}>
@@ -104,6 +141,14 @@ export function ConceptCard({
                 Placeholder
               </button>
             </div>
+          </div>
+        )}
+        {hasText && !imageError && !showPlaceholder && (
+          <div
+            className={`preview-text-overlay placement-${placementClass}`}
+            aria-hidden="true"
+          >
+            {concept.textOverlay.text}
           </div>
         )}
       </div>

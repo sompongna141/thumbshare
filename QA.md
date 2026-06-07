@@ -4,7 +4,7 @@
 
 - [x] user can log in with Pollinations before generation (BYOP OAuth flow)
 - [x] user can submit a video brief without confusion
-- [x] concept generator returns 6 structured concepts (mock mode validated)
+- [x] concept generator returns the selected 3, 4, 6, or 8 structured concepts (mock mode validated)
 - [x] each concept has: image prompt, face expression, text overlay, color notes, A/B hint (mock mode validated)
 - [x] image preview URLs built correctly via image.pollinations.ai/prompt/ endpoint (migrated from gen.pollinations.ai which returned 401)
 - [x] user can regenerate a single concept (mock mode validated)
@@ -22,7 +22,7 @@
 - [x] print/export layout is clean (print CSS hides controls)
 - [x] sample brief selector with niche tags
 - [x] image error fallback UI shows helpful guidance instead of blank space
-- [x] live image model selector with persistence
+- [x] live image model selector moved to Direction with persistence
 - [x] image model auto-fallback chain (flux → kontext → flux-schnell → turbo → sdxl) on load failure
 
 ## Technical
@@ -31,13 +31,15 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (86/86 Vitest tests)
+- [x] test suite passes (99/99 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
 - [x] prompt scaffolding includes anti-AI-slop rules, visual hierarchy, face expression taxonomy, typography rules, and YouTube CTR best practices
 - [x] Pollinations API endpoints aligned to current working URLs (text.pollinations.ai, image.pollinations.ai)
-- [x] extractJson handles malformed/empty responses gracefully with descriptive errors
+- [x] extractJson handles fenced JSON, surrounding prose, nested payloads, trailing commas, malformed, empty, and truncated responses
+- [x] generation retries once with a shorter structured prompt when the model returns incomplete JSON
+- [x] with-text previews render exact overlay copy and placement in the UI instead of relying on image-model spelling
 
 ## Product quality
 
@@ -81,7 +83,9 @@ These require a real Pollinations user key and/or production deployment to confi
 - [x] Shortlist persisted to localStorage and restored on reload
 - [x] Comfortable / Compact density toggle with localStorage persistence
 - [x] Brief completion progress bar on Step 1
-- [x] Text overlay toggle (with-text / no-text) on Step 2, threaded through prompt builder and mock generator
+- [x] Text overlay toggle (with-text / no-text) moved to Step 3 Direction, threaded through prompt builder and mock generator
+- [x] Concept count selector (3 / 4 / 6 / 8) on Step 3 Direction
+- [x] Image model selector moved from the top bar to Step 3 Direction
 - [x] Error banner with inline Retry button
 - [x] History per-entry delete and Clear all
 - [x] Dropdown menus close on click-outside and Escape

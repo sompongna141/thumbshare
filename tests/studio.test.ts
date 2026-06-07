@@ -68,8 +68,8 @@ describe("briefCompletion", () => {
     };
     const c = briefCompletion(empty);
     expect(c.filled).toBe(1); // tone is filled (default)
-    expect(c.total).toBe(8);
-    expect(c.ratio).toBeCloseTo(1 / 8);
+    expect(c.total).toBe(9);
+    expect(c.ratio).toBeCloseTo(1 / 9);
   });
 
   it("returns 1 ratio for a fully filled sample brief", () => {
@@ -84,6 +84,13 @@ describe("briefCompletion", () => {
     // A brief without textOverlay field set counts it as not filled
     const c2 = briefCompletion({ ...sampleBriefs[0], textOverlay: undefined });
     expect(c2.filled).toBe(c2.total - 1);
+  });
+
+  it("counts concept count as a filled field", () => {
+    const complete = briefCompletion({ ...sampleBriefs[0], conceptCount: 3 });
+    expect(complete.filled).toBe(complete.total);
+    const missing = briefCompletion({ ...sampleBriefs[0], conceptCount: undefined });
+    expect(missing.filled).toBe(missing.total - 1);
   });
 });
 
