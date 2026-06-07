@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: process.env.NEXT_OUTPUT_STANDALONE === "true" ? "standalone" : undefined,
   distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {
     unoptimized: true,
