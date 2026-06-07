@@ -18,7 +18,8 @@ CT="Content-Type: application/json"
 
 PROJECT_NAME="${PROJECT_NAME:-thumbshare}"
 REPO_SLUG="${REPO_SLUG:-sompongna141/thumbshare}"
-ROOT_DIR="${ROOT_DIR:-projects/lab-apps/apps/youtube-thumbnail-studio}"
+ROOT_DIR="${ROOT_DIR:-}"
+export PROJECT_NAME REPO_SLUG ROOT_DIR
 
 # Optional: push the latest local main to GitHub if GITHUB_TOKEN is provided
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
@@ -37,16 +38,9 @@ PROJ_JSON=$(curl -fsS -H "$AUTH" "$BASE/v9/projects/$PROJECT_NAME" || echo "{}")
 
 if [[ "$PROJ_JSON" == "{}" ]]; then
   echo "→ Creating project '$PROJECT_NAME' linked to GitHub repo $REPO_SLUG"
+  CREATE_PAYLOAD=$(python3 -c "import json,os; p={'name':os.environ['PROJECT_NAME'],'framework':'nextjs','gitRepository':{'type':'github','repo':os.environ['REPO_SLUG']},'buildCommand':None,'installCommand':None,'outputDirectory':None}; r=os.environ.get('ROOT_DIR',''); p.update({'rootDirectory':r} if r else {}); print(json.dumps(p))")
   PROJ_JSON=$(curl -fsS -H "$AUTH" -H "$CT" -X POST "$BASE/v10/projects" \
-    -d "{
-      \"name\": \"$PROJECT_NAME\",
-      \"framework\": \"nextjs\",
-      \"gitRepository\": { \"type\": \"github\", \"repo\": \"$REPO_SLUG\" },
-      \"rootDirectory\": \"$ROOT_DIR\",
-      \"buildCommand\": null,
-      \"installCommand\": null,
-      \"outputDirectory\": null
-    }")
+    -d "$CREATE_PAYLOAD")
 fi
 
 PROJ_ID=$(echo "$PROJ_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["id"])')
@@ -66,17 +60,9 @@ upsert_env POLLINATIONS_ALLOW_MOCK "false" "production,preview,development"
 
 # Trigger a deployment from main
 echo "→ Triggering deployment from main"
+DEPLOY_PAYLOAD=$(python3 -c "import json,os; p={'name':os.environ['PROJECT_NAME'],'target':'production','gitSource':{'type':'github','repoId':os.environ['REPO_SLUG'],'ref':'main'}}; r=os.environ.get('ROOT_DIR',''); p.update({'projectSettings':{'rootDirectory':r}} if r else {}); print(json.dumps(p))")
 DEPLOY_JSON=$(curl -fsS -H "$AUTH" -H "$CT" -X POST "$BASE/v13/deployments" \
-  -d "{
-    \"name\": \"$PROJECT_NAME\",
-    \"target\": \"production\",
-    \"gitSource\": {
-      \"type\": \"github\",
-      \"repoId\": \"$REPO_SLUG\",
-      \"ref\": \"main\"
-    },
-    \"projectSettings\": { \"rootDirectory\": \"$ROOT_DIR\" }
-  }")
+  -d "$DEPLOY_PAYLOAD")
 
 DEPLOY_URL=$(echo "$DEPLOY_JSON" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d.get("url") or d.get("alias") or d.get("id"))')
 echo "✓ Deployment: $DEPLOY_URL"
