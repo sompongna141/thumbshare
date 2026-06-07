@@ -31,7 +31,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (102/102 Vitest tests)
+- [x] test suite passes (108/108 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
@@ -40,6 +40,8 @@
 - [x] extractJson handles fenced JSON, surrounding prose, nested payloads, trailing commas, malformed, empty, and truncated responses
 - [x] generation retries once with a shorter structured prompt when the model returns incomplete JSON
 - [x] with-text previews render exact overlay copy and placement in the UI instead of relying on image-model spelling
+- [x] text mode supports post-process, generated-in-image, and no-text paths
+- [x] text styles support AI recommended, Impact, Editorial, Minimal, and Banner treatments
 - [x] Pollinations OAuth redirects back to `/studio`, where the returned key hash is consumed and removed from the URL
 
 ## Product quality
@@ -84,7 +86,7 @@ These require a real Pollinations user key and/or production deployment to confi
 - [x] Shortlist persisted to localStorage and restored on reload
 - [x] Comfortable / Compact density toggle with localStorage persistence
 - [x] Brief completion progress bar on Step 1
-- [x] Text overlay toggle (with-text / no-text) moved to Step 3 Direction, threaded through prompt builder and mock generator
+- [x] Text rendering modes live in Step 3 Direction and are threaded through prompts, previews, exports, and mock generation
 - [x] Concept count selector (3 / 4 / 6 / 8) on Step 3 Direction
 - [x] Image model selector moved from the top bar to Step 3 Direction
 - [x] Error banner with inline Retry button

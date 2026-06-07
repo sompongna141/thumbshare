@@ -1,3 +1,23 @@
+## 2026-06-07 09:20 UTC
+
+**Focus:** Text rendering modes + style presets
+
+**Shipped:**
+- Added three Direction choices: Post-process (recommended), Generate in image (experimental), and No text.
+- Added AI recommended, Impact, Editorial, Minimal, and Banner styles.
+- AI recommended asks the strategist model to choose Impact, Editorial, Minimal, or Banner per concept. Tone mapping provides a deterministic fallback if the model omits or returns an invalid style.
+- Post-process mode reserves negative space and renders exact styled lettering in the app.
+- Generated mode prompts the image model with the exact phrase, placement, and style, while suppressing duplicate UI lettering.
+- Preserved old saved briefs by inferring post-process from `textOverlay: true` and no-text from `false`.
+- Added text mode/style metadata to Markdown exports and concept cards.
+
+**Verification:**
+- 108/108 Vitest tests passing.
+- TypeScript lint and production build passing.
+- Runtime mock API verified all three modes at 3 concepts.
+- `/studio` returns 200 and the compiled bundle contains all mode/style controls.
+- Browser screenshot automation was unavailable because no supported browser is installed on this host.
+
 ## 2026-06-07 08:32 UTC
 
 **Focus:** Pollinations OAuth callback + product/deploy copy alignment

@@ -43,6 +43,8 @@ const EMPTY_BRIEF: ThumbnailBrief = {
   targetAudience: "",
   tone: "curiosity",
   textOverlay: true,
+  textMode: "post-process",
+  textStyle: "recommended",
   conceptCount: 6,
   channelContext: "",
   constraints: "",

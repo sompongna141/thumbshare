@@ -61,7 +61,7 @@
 ## Phase 7 — Deploy readiness
 
 - [x] write README.md for the app
-- [x] verify build / lint / typecheck / tests pass (102/102 passing)
+- [x] verify build / lint / typecheck / tests pass (108/108 passing)
 - [x] write DEPLOY.md with env and Vercel steps
 - [x] initialize dedicated git repo (main branch)
 - [x] add /api/config route for runtime config (mock enabled, app key)
@@ -70,11 +70,13 @@
 - [x] add mock-mode QA scenarios
 - [x] refactor studio page into components (TopBar, StepIndicator, HookStep, AudienceStep, DirectionStep, ResultsStep, ConceptCard, ExportToolbar, SampleMenu, HistoryMenu, ManualKeyBand)
 - [x] extract useThumbnailStudio hook for all state, effects, API, export logic
-- [x] add text overlay toggle (with-text / no-text) threaded through prompt builder and mock generator
+- [x] add text rendering modes threaded through prompt builder, previews, exports, and mock generator
 - [x] move text overlay and image model controls to Direction
 - [x] add selectable concept count (3 / 4 / 6 / 8)
 - [x] harden JSON extraction and retry one malformed/truncated generation
 - [x] fix Pollinations OAuth callback to return to `/studio` and consume the key hash
+- [x] add post-process, generated-in-image, and no-text modes
+- [x] add AI-recommended and predefined text style presets
 - [x] persist wizard draft (step + brief) to localStorage and restore on reload
 - [x] persist shortlist to localStorage and restore on reload
 - [x] add comfortable / compact density toggle for results grid with persistence

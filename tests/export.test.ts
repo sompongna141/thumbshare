@@ -10,6 +10,8 @@ function makeResult(): ConceptGenerationResult {
       topicCategory: "Finance / Crypto",
       targetAudience: "Retail investors",
       tone: "dramatic",
+      textMode: "post-process",
+      textStyle: "impact",
       channelContext: "Personal finance channel",
       constraints: "No gambling imagery",
     },
@@ -47,6 +49,9 @@ describe("buildMarkdownPacket", () => {
     expect(md).toContain("Finance / Crypto");
     expect(md).toContain("Retail investors");
     expect(md).toContain("dramatic");
+    expect(md).toContain("**Text Mode:** Post-process");
+    expect(md).toContain("**Text Style:** impact");
+    expect(md).toContain("center · impact");
     expect(md).toContain("Personal finance channel");
     expect(md).toContain("No gambling imagery");
   });

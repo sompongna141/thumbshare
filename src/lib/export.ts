@@ -1,4 +1,10 @@
 import { ThumbnailConcept, ConceptGenerationResult } from "./types";
+import {
+  getConceptTextStyle,
+  getResolvedTextStyle,
+  getTextMode,
+  getTextModeLabel,
+} from "./text-overlay";
 
 export function buildMarkdownPacket(
   result: ConceptGenerationResult,
@@ -17,6 +23,12 @@ export function buildMarkdownPacket(
   lines.push(`**Category:** ${brief.topicCategory || "—"}`);
   lines.push(`**Audience:** ${brief.targetAudience || "—"}`);
   lines.push(`**Tone:** ${brief.tone}`);
+  lines.push(`**Text Mode:** ${getTextModeLabel(getTextMode(brief))}`);
+  if (getTextMode(brief) !== "none") {
+    lines.push(
+      `**Text Style:** ${(brief.textStyle || "recommended") === "recommended" ? "AI recommended per concept" : getResolvedTextStyle(brief)}`
+    );
+  }
   if (brief.channelContext) lines.push(`**Channel Context:** ${brief.channelContext}`);
   if (brief.constraints) lines.push(`**Constraints:** ${brief.constraints}`);
   lines.push("");
@@ -35,7 +47,9 @@ export function buildMarkdownPacket(
     lines.push("");
     lines.push(`**Face Expression:** ${c.faceExpression}`);
     lines.push("");
-    lines.push(`**Text Overlay:** “${c.textOverlay.text}” — ${c.textOverlay.placement}`);
+    lines.push(
+      `**Text Overlay:** “${c.textOverlay.text}” — ${c.textOverlay.placement} · ${getConceptTextStyle(c, brief)}`
+    );
     lines.push("");
     lines.push(`**Color Psychology:**`);
     lines.push(`- Primary: ${c.colorPsychology.primaryColor}`);

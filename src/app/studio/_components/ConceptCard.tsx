@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import type { ThumbnailConcept } from "@/lib/types";
+import type { ThumbnailBrief, ThumbnailConcept } from "@/lib/types";
 import {
   buildPreviewImagePrompt,
   buildThumbnailImageUrl,
   generatePlaceholderSvg,
 } from "@/lib/pollinations";
+import {
+  getConceptTextStyle,
+  getTextMode,
+  getTextModeLabel,
+} from "@/lib/text-overlay";
 
 const COLOR_MAP: Record<string, string> = {
   red: "#ef4444", blue: "#3b82f6", yellow: "#eab308", green: "#22c55e",
@@ -47,6 +52,7 @@ function overlayPlacementClass(placement: string): string {
 
 interface Props {
   concept: ThumbnailConcept;
+  brief: ThumbnailBrief;
   clientKey?: string;
   imageModel: string;
   imageError: boolean;
@@ -63,6 +69,7 @@ interface Props {
 
 export function ConceptCard({
   concept,
+  brief,
   clientKey,
   imageModel,
   imageError,
@@ -85,17 +92,19 @@ export function ConceptCard({
   }, [concept.imagePrompt, concept.conceptName]);
 
   const hasText = concept.textOverlay.text.trim().length > 0;
+  const textMode = getTextMode(brief);
+  const textStyle = getConceptTextStyle(concept, brief);
   const placementClass = overlayPlacementClass(concept.textOverlay.placement);
 
   const imageUrl = useMemo(
     () =>
       buildThumbnailImageUrl(
-        buildPreviewImagePrompt(concept),
+        buildPreviewImagePrompt(concept, brief),
         clientKey,
         imageModel,
         retryCount
       ),
-    [concept, clientKey, imageModel, retryCount]
+    [concept, brief, clientKey, imageModel, retryCount]
   );
 
   return (
@@ -143,9 +152,9 @@ export function ConceptCard({
             </div>
           </div>
         )}
-        {hasText && !imageError && !showPlaceholder && (
+        {hasText && textMode === "post-process" && !imageError && !showPlaceholder && (
           <div
-            className={`preview-text-overlay placement-${placementClass}`}
+            className={`preview-text-overlay text-style-${textStyle} placement-${placementClass}`}
             aria-hidden="true"
           >
             {concept.textOverlay.text}
@@ -159,6 +168,11 @@ export function ConceptCard({
           {concept.textOverlay.placement === "none" && (
             <span className="tag text-free-tag" title="User opted out of text overlay">No text</span>
           )}
+          {hasText && (
+            <span className={`tag text-mode-tag ${textMode === "generated" ? "experimental" : ""}`}>
+              {getTextModeLabel(textMode)}
+            </span>
+          )}
         </div>
         <span className="tag">{concept.faceExpression}</span>
 
@@ -167,7 +181,9 @@ export function ConceptCard({
             <div className="section-title">Text Overlay</div>
             <div className="text-overlay">
               &ldquo;{concept.textOverlay.text}&rdquo;{" "}
-              <span className="placement">— {concept.textOverlay.placement}</span>
+              <span className="placement">
+                — {concept.textOverlay.placement} · {textStyle}
+              </span>
             </div>
           </>
         ) : (

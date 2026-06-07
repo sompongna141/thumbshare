@@ -4,6 +4,13 @@ import React from "react";
 import type { ThumbnailBrief } from "@/lib/types";
 import { TONE_OPTIONS } from "../_lib/tone";
 import type { PollinationsModel } from "@/lib/pollinations-models";
+import {
+  getRecommendedTextStyle,
+  getResolvedTextStyle,
+  getTextMode,
+  getTextModeLabel,
+  TEXT_STYLE_OPTIONS,
+} from "@/lib/text-overlay";
 
 interface Props {
   brief: ThumbnailBrief;
@@ -39,6 +46,9 @@ export function DirectionStep({
 }: Props) {
   const toneLabel = TONE_OPTIONS.find((t) => t.value === brief.tone)?.label || brief.tone;
   const conceptCount: 3 | 4 | 6 | 8 = brief.conceptCount ?? 6;
+  const textMode = getTextMode(brief);
+  const resolvedStyle = getResolvedTextStyle(brief);
+  const recommendedStyle = getRecommendedTextStyle(brief.tone);
   return (
     <div className="step-panel" key="step3">
       <h2 className="step-title">Set the visual direction</h2>
@@ -65,31 +75,79 @@ export function DirectionStep({
       </div>
 
       <div className="field">
-        <label>Thumbnail Text Overlay</label>
-        <div className="text-toggle-row">
+        <label>Thumbnail text</label>
+        <div className="text-mode-grid">
           <button
             type="button"
-            className={`text-toggle-btn ${brief.textOverlay !== false ? "selected" : ""}`}
-            onClick={() => setBrief((b) => ({ ...b, textOverlay: true }))}
-            aria-pressed={brief.textOverlay !== false}
+            className={`text-mode-btn ${textMode === "post-process" ? "selected" : ""}`}
+            onClick={() => setBrief((b) => ({ ...b, textOverlay: true, textMode: "post-process" }))}
+            aria-pressed={textMode === "post-process"}
           >
-            With text
+            <span className="text-mode-title">
+              Post-process
+              <span className="recommended-badge">Recommended</span>
+            </span>
+            <span className="text-mode-description">Exact spelling, editable style and placement</span>
           </button>
           <button
             type="button"
-            className={`text-toggle-btn ${brief.textOverlay === false ? "selected" : ""}`}
-            onClick={() => setBrief((b) => ({ ...b, textOverlay: false }))}
-            aria-pressed={brief.textOverlay === false}
+            className={`text-mode-btn ${textMode === "generated" ? "selected" : ""}`}
+            onClick={() => setBrief((b) => ({ ...b, textOverlay: true, textMode: "generated" }))}
+            aria-pressed={textMode === "generated"}
           >
-            No text
+            <span className="text-mode-title">
+              Generate in image
+              <span className="experimental-badge">Experimental</span>
+            </span>
+            <span className="text-mode-description">Model draws the lettering as part of the image</span>
+          </button>
+          <button
+            type="button"
+            className={`text-mode-btn ${textMode === "none" ? "selected" : ""}`}
+            onClick={() => setBrief((b) => ({ ...b, textOverlay: false, textMode: "none" }))}
+            aria-pressed={textMode === "none"}
+          >
+            <span className="text-mode-title">No text</span>
+            <span className="text-mode-description">Expression, props and color carry the hook</span>
           </button>
         </div>
         <p className="field-hint">
-          {brief.textOverlay === false
-            ? "Thumbnails will be text-free. Concepts lean on face expression, props, and color contrast."
-            : "Each concept will include a short text overlay and placement."}
+          {textMode === "post-process"
+            ? "ThumbSnare adds the exact lettering after image generation. This is the reliable choice."
+            : textMode === "generated"
+              ? "The image model attempts the text directly. Check spelling before publishing."
+              : "Thumbnails remain text-free from prompt through preview."}
         </p>
       </div>
+
+      {textMode !== "none" && (
+        <div className="field">
+          <label>Text style</label>
+          <div className="text-style-grid">
+            {TEXT_STYLE_OPTIONS.map((style) => (
+              <button
+                key={style.value}
+                type="button"
+                className={`text-style-btn text-style-sample-${style.value === "recommended" ? recommendedStyle : style.value} ${(brief.textStyle || "recommended") === style.value ? "selected" : ""}`}
+                onClick={() => setBrief((b) => ({ ...b, textStyle: style.value }))}
+                aria-pressed={(brief.textStyle || "recommended") === style.value}
+              >
+                <span className="text-style-name">{style.label}</span>
+                <span className="text-style-description">
+                  {style.value === "recommended"
+                    ? `${style.description}; ${recommendedStyle} fallback`
+                    : style.description}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="field-hint">
+            {(brief.textStyle || "recommended") === "recommended"
+              ? `AI chooses a style for each concept. ${recommendedStyle} is used if no recommendation is returned.`
+              : <>Selected treatment: <strong>{resolvedStyle}</strong>.</>}
+          </p>
+        </div>
+      )}
 
       <div className="field">
         <label>How many concepts to generate?</label>
@@ -170,7 +228,10 @@ export function DirectionStep({
           </li>
           <li>
             <span className="brief-summary-key">Text overlay</span>
-            <span className="brief-summary-val">{brief.textOverlay === false ? "No (text-free)" : "Yes"}</span>
+            <span className="brief-summary-val">
+              {getTextModeLabel(textMode)}
+              {textMode !== "none" ? ` · ${resolvedStyle}` : ""}
+            </span>
           </li>
           <li>
             <span className="brief-summary-key">Concept count</span>

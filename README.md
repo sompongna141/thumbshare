@@ -5,7 +5,7 @@ Turn a video title and angle into 3, 4, 6, or 8 thumbnail concept packs: image p
 ## What it does
 
 1. Enter your video brief (title, angle, audience, tone).
-2. Choose text or no-text mode, concept count, and image model in Direction.
+2. Choose post-processed text, generated-in-image text, or no text. Pick AI-recommended or predefined lettering styles.
 3. App generates the selected number of structured concepts via Pollinations AI.
 4. Preview images are generated on-demand; exact overlay lettering is rendered by the app.
 5. Copy individual concepts or export the full pack as JSON or Markdown.
@@ -54,6 +54,8 @@ npm run build      # Production build
 - `GET /api/pollinations/models` — returns available Pollinations image models.
 - BYOP auth: user connects via Pollinations OAuth at `auth.pollinations.ai`, returns to `/studio`, and the token is stored in `localStorage`.
 - Image previews: built as Pollinations image URLs with user key appended via `?key=`.
+- Text modes: deterministic post-processing (recommended), generated-in-image (experimental), or text-free.
+- Text styles: AI recommended, Impact, Editorial, Minimal, and Banner.
 
 ## Deployment
 

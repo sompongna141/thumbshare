@@ -8,6 +8,7 @@ import type {
 } from "@/lib/types";
 import { ConceptCard } from "./ConceptCard";
 import { ExportToolbar } from "./ExportToolbar";
+import { getTextMode, getTextModeLabel } from "@/lib/text-overlay";
 
 interface Props {
   brief: ThumbnailBrief;
@@ -77,6 +78,7 @@ export function ResultsStep(props: Props) {
     onStartBrief,
     onClearShortlist,
   } = props;
+  const textMode = getTextMode(brief);
 
   return (
     <div className="step-panel" key="step4">
@@ -149,7 +151,7 @@ export function ResultsStep(props: Props) {
             <div className="shortlist-bar">
               <span className="shortlist-label">
                 {starred.size} saved
-                {brief.textOverlay === false && " · text-free mode"}
+                {` · ${getTextModeLabel(textMode).toLowerCase()}`}
               </span>
               <button className="btn secondary small" onClick={onCopyStarred}>
                 {copied === "starred" ? "Copied" : "Copy starred"}
@@ -177,6 +179,7 @@ export function ResultsStep(props: Props) {
               <ConceptCard
                 key={c.id}
                 concept={c}
+                brief={result.brief}
                 clientKey={byopKey || undefined}
                 imageModel={fallbackModelMap[c.id] || selectedModel}
                 imageError={imgErrorMap[c.id] || false}
@@ -199,7 +202,7 @@ export function ResultsStep(props: Props) {
         <div className="empty-state">
           <h3>No concepts yet</h3>
           <p>
-            Go back and fill in your brief, then hit Generate to get 6 thumbnail concepts.
+            Go back and fill in your brief, then generate the number of concepts you need.
           </p>
           <p className="empty-action">
             <button className="btn primary" onClick={onStartBrief}>

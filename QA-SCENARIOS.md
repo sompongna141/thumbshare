@@ -75,15 +75,16 @@
 5. Click **Export starred Markdown**.
 6. **Expected:** a smaller `.md` file downloads containing only the starred concepts and A/B plan.
 
-## Scenario 10: Text overlay toggle
+## Scenario 10: Text mode and style
 1. Open the app and start a brief.
-2. On Step 3 (Direction), find the **Thumbnail Text Overlay** toggle.
-3. Click **No text**.
-4. **Expected:** hint reads "Thumbnails will be text-free. Concepts lean on face expression, props, and color contrast."
+2. On Step 3 (Direction), find **Thumbnail text**.
+3. Select **Post-process** and **AI recommended**.
+4. **Expected:** the resolved style matches the selected tone and previews show exact UI-rendered lettering.
 5. Select **6** concepts and click **Generate 6 Concepts**.
-6. **Expected:** 6 concepts with `textOverlay.text: ""`, `textOverlay.placement: "none"`. Each concept card shows a "No text" tag in the header and the "Text Overlay" section reads "Text-free thumbnail — relies on expression and color". Image prompts must not contain "bold text overlay", "text on", "font", or "wordmark".
-7. If an image fails and the placeholder SVG renders, the SVG should display a "TEXT-FREE THUMBNAIL" badge instead of the bold text line.
-8. Toggle back to **With text** and regenerate. Each generated preview must visibly show the exact overlay copy at its requested placement; lettering must not depend on the image model.
+6. Select **Generate in image** with **Banner**, then regenerate.
+7. **Expected:** image prompts include the exact phrase and banner style; cards show an Experimental tag and no duplicate UI overlay.
+8. Select **No text** and regenerate.
+9. **Expected:** concepts use empty text, placement `none`, and text-free image prompts. Cards show a No text tag.
 
 ## Scenario 11: Concept count + malformed JSON recovery
 1. On Step 3 (Direction), select each count: **3**, **4**, **6**, and **8**.

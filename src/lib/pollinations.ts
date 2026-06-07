@@ -1,5 +1,11 @@
 /// <reference types="node" />
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "./types";
+import {
+  getConceptTextStyle,
+  getResolvedTextStyle,
+  getTextMode,
+  getTextStylePrompt,
+} from "./text-overlay";
 
 const POLLINATIONS_BASE_URL = "https://gen.pollinations.ai";
 
@@ -198,9 +204,18 @@ export function buildThumbnailImageUrl(prompt: string, key?: string, model = "fl
   return url;
 }
 
-export function buildPreviewImagePrompt(concept: ThumbnailConcept): string {
+export function buildPreviewImagePrompt(
+  concept: ThumbnailConcept,
+  brief?: ThumbnailBrief
+): string {
   const placement = concept.textOverlay.placement || "open side";
-  if (concept.textOverlay.text.trim()) {
+  const mode = brief ? getTextMode(brief) : "post-process";
+  if (mode === "generated" && concept.textOverlay.text.trim()) {
+    const style = getConceptTextStyle(concept, brief!);
+    return `${concept.imagePrompt}
+Typography requirement: render the exact headline "${concept.textOverlay.text}" at ${placement}. Use ${getTextStylePrompt(style)}. The spelling and punctuation must match exactly. Do not add any other words, logos, captions, or watermarks.`;
+  }
+  if (mode === "post-process" && concept.textOverlay.text.trim()) {
     return `${concept.imagePrompt}
 Composition requirement: leave clean negative space at ${placement} for a separate text overlay. Do not render words, letters, captions, logos, or watermarks inside the generated image.`;
   }
@@ -209,16 +224,41 @@ Text-free requirement: do not render words, letters, captions, logos, or waterma
 }
 
 function conceptPromptBuilder(brief: ThumbnailBrief): string {
-  const wantsText = brief.textOverlay !== false; // default true
+  const textMode = getTextMode(brief);
+  const wantsText = textMode !== "none";
+  const resolvedStyle = getResolvedTextStyle(brief);
+  const stylePrompt = getTextStylePrompt(resolvedStyle);
+  const styleCatalog = [
+    `impact: ${getTextStylePrompt("impact")}`,
+    `editorial: ${getTextStylePrompt("editorial")}`,
+    `minimal: ${getTextStylePrompt("minimal")}`,
+    `banner: ${getTextStylePrompt("banner")}`,
+  ].join("; ");
+  const styleRule = (brief.textStyle || "recommended") === "recommended"
+    ? "Choose the best style for each concept from: impact, editorial, minimal, banner. Return that choice in textOverlay.style."
+    : `Use ${resolvedStyle} for every concept and return "${resolvedStyle}" in textOverlay.style.`;
+  const styleReference = (brief.textStyle || "recommended") === "recommended"
+    ? styleCatalog
+    : stylePrompt;
   const count = getConceptCount(brief);
-  const textRules = wantsText
-    ? `Text overlay requirements:
+  const textRules = textMode === "post-process"
+    ? `Text overlay requirements (post-processing mode):
 - For each concept, supply a textOverlay object with concrete text (3-5 words max) and a specific placement (top-left, center, bottom-center, top-right, etc.).
-- Text must be a bold sans-serif, instantly readable at 150px.
+- ${styleRule}
+- Style reference: ${styleReference}.
 - Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
 - The app renders the text overlay itself. The imagePrompt must reserve clean negative space at the selected placement and must not ask the image model to draw letters or words.
 - Vary the text across the ${count} concepts so the A/B plan can pair text-heavy vs text-light variants.`
-    : `Text overlay requirements:
+    : textMode === "generated"
+      ? `Text overlay requirements (generated-in-image mode):
+- For each concept, supply exact overlay text (3-5 words max) and placement.
+- ${styleRule}
+- Style reference: ${styleReference}.
+- The imagePrompt must explicitly instruct the image model to render that exact phrase at that placement using the requested style.
+- Never place critical text in the bottom-right quadrant (blocked by YouTube timestamp overlay).
+- Do not add any other words, logos, captions, labels, or watermarks.
+- This mode is experimental, so keep spelling simple and use short phrases.`
+      : `Text overlay requirements:
 - The user has explicitly opted out of text overlays. Do NOT include any text on the thumbnail.
 - The imagePrompt must not reference text, words, letters, or typography. Describe only the visual scene.
 - For textOverlay in the JSON, use { "text": "", "placement": "none" } and explain in platformNotes that the thumbnail is text-free.
@@ -231,7 +271,8 @@ Angle / Topic: ${brief.angle}
 Category: ${brief.topicCategory}
 Target Audience: ${brief.targetAudience}
 Tone: ${brief.tone}
-Text overlay on thumbnail: ${wantsText ? "YES - include text on each concept" : "NO - text-free thumbnails only"}
+Text mode: ${textMode === "post-process" ? "POST-PROCESS - app adds exact lettering after image generation" : textMode === "generated" ? "GENERATED IN IMAGE - image model renders the lettering" : "NONE - text-free thumbnails only"}
+Text style: ${wantsText ? (brief.textStyle || "recommended") === "recommended" ? `AI RECOMMENDED PER CONCEPT (tone fallback: ${resolvedStyle})` : resolvedStyle : "not applicable"}
 ${brief.channelContext ? `Channel Context: ${brief.channelContext}` : ""}
 ${brief.constraints ? `Constraints: ${brief.constraints}` : ""}
 
@@ -278,7 +319,7 @@ For each concept, provide:
 - conceptName: 3-5 words
 - imagePrompt: detailed prompt following the rules above
 - faceExpression: describe the expression or reaction shown
-- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, right-center, etc.) }${wantsText ? "" : " - use empty text and placement 'none' since the user opted out of text overlays"}
+- textOverlay: { text: exact text on thumbnail (5 words max), placement: specific position (top-left, center, right-center, etc.), style: one of "impact", "editorial", "minimal", "banner" }${wantsText ? "" : " - use empty text, placement 'none', and omit style since the user opted out of text overlays"}
 - colorPsychology: { primaryColor: dominant color (hex or name), contrastNote: why it pops on YouTube white background, emotion: emotional trigger }
 - abVariantHint: one specific change for an A/B test variant
 - platformNotes: note about mobile vs desktop visibility${wantsText ? "" : " - explicitly note that the thumbnail is text-free"}
@@ -289,7 +330,7 @@ Also provide:
 Return ONLY valid JSON in this exact shape:
 {
   "concepts": [
-    { "id": "1", "conceptName": "...", "imagePrompt": "...", "faceExpression": "...", "textOverlay": { "text": "...", "placement": "..." }, "colorPsychology": { "primaryColor": "...", "contrastNote": "...", "emotion": "..." }, "abVariantHint": "...", "platformNotes": "..." }
+    { "id": "1", "conceptName": "...", "imagePrompt": "...", "faceExpression": "...", "textOverlay": { "text": "...", "placement": "...", "style": "impact" }, "colorPsychology": { "primaryColor": "...", "contrastNote": "...", "emotion": "..." }, "abVariantHint": "...", "platformNotes": "..." }
   ],
   "abPlan": "..."
 }
@@ -309,7 +350,10 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
     aspirational: { expr: "confident smile, chin up", color: "gold", emotion: "luxury and achievement", contrast: "Metallic shimmer on flat white" },
   };
   const toneInfo = tones[brief.tone] || tones.curiosity;
-  const wantsText = brief.textOverlay !== false;
+  const textMode = getTextMode(brief);
+  const wantsText = textMode !== "none";
+  const resolvedStyle = getResolvedTextStyle(brief);
+  const stylePrompt = getTextStylePrompt(resolvedStyle);
   const count = getConceptCount(brief);
   const wordVariants = ["Face Drop", "Split Shock", "Text Punch", "Color Pop", "Prop Reveal", "Angle Flip", "Mood Shift", "Bold Frame"];
   const placements = ["bottom-center", "top-left", "center", "right-center", "top-center", "bottom-left", "top-right", "left-center"];
@@ -320,15 +364,18 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
     const overlayText = i % 2 === 0
       ? brief.videoTitle.split(" ").slice(0, 3).join(" ").toUpperCase()
       : "WATCH THIS";
+    const imagePrompt = textMode === "generated"
+      ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, render exact headline "${overlayText}" at ${placements[i]} using ${stylePrompt}, no other letters or words, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes`
+      : textMode === "post-process"
+        ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, clean negative space at ${placements[i]} for a separate overlay, no embedded letters or words, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`
+        : `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, NO TEXT NO WORDS NO LETTERS typography-free composition, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`;
     return {
       id: String(i + 1),
       conceptName,
-      imagePrompt: wantsText
-        ? `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, clean negative space at ${placements[i]} for a separate overlay, no embedded letters or words, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`
-        : `YouTube thumbnail, 16:9, close-up face with ${toneInfo.expr}, ${toneInfo.color} background with strong gradient, NO TEXT NO WORDS NO LETTERS typography-free composition, high contrast, designed for mobile 150px readability, single prop anchoring the story, studio lighting from left side, realistic skin texture, sharp focus on eyes, depth of field on background`,
+      imagePrompt,
       faceExpression: toneInfo.expr,
       textOverlay: wantsText
-        ? { text: overlayText, placement: placements[i] }
+        ? { text: overlayText, placement: placements[i], style: resolvedStyle }
         : { text: "", placement: "none" },
       colorPsychology: {
         primaryColor: toneInfo.color,
@@ -338,8 +385,10 @@ function buildMockConcepts(brief: ThumbnailBrief): string {
       abVariantHint: wantsText
         ? `Swap ${toneInfo.color} background for its complementary color`
         : `Swap expression to a wider-eyed variant of the same ${toneInfo.color} palette`,
-      platformNotes: wantsText
-        ? "Readable at 150px on mobile; text kept under 5 words for scanability."
+      platformNotes: textMode === "generated"
+        ? `Experimental generated lettering using ${resolvedStyle} style; verify spelling before publishing.`
+        : textMode === "post-process"
+          ? `Exact ${resolvedStyle} overlay is applied after image generation for reliable spelling and placement.`
         : "Text-free thumbnail; relies on subject expression and color contrast for 0.5s judgment.",
     };
   });

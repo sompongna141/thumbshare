@@ -1,11 +1,18 @@
+export type TextMode = "none" | "post-process" | "generated";
+export type TextStyle = "recommended" | "impact" | "editorial" | "minimal" | "banner";
+
 export interface ThumbnailBrief {
   videoTitle: string;
   angle: string;
   topicCategory: string;
   targetAudience: string;
   tone: "dramatic" | "funny" | "educational" | "controversial" | "emotional" | "curiosity" | "fear" | "aspirational";
-  /** Whether the thumbnail should include a text overlay. Default true. */
+  /** Legacy compatibility flag. New UI writes this alongside textMode. */
   textOverlay?: boolean;
+  /** How lettering is applied. Old briefs infer this from textOverlay. */
+  textMode?: TextMode;
+  /** Visual treatment for generated or post-processed lettering. */
+  textStyle?: TextStyle;
   /** How many concepts to generate. Default 6. Valid: 3, 4, 6, 8. */
   conceptCount?: 3 | 4 | 6 | 8;
   channelContext?: string;
@@ -17,7 +24,12 @@ export interface ThumbnailConcept {
   conceptName: string;
   imagePrompt: string;
   faceExpression: string;
-  textOverlay: { text: string; placement: string };
+  textOverlay: {
+    text: string;
+    placement: string;
+    /** AI-selected or user-selected resolved style. */
+    style?: Exclude<TextStyle, "recommended">;
+  };
   colorPsychology: {
     primaryColor: string;
     contrastNote: string;

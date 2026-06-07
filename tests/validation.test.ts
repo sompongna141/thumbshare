@@ -8,6 +8,12 @@ import {
 import { getNextFallbackModel, getPreferredModelIndex, pickDefaultModel } from "../src/lib/model-fallback";
 import { sampleBriefs, sampleBriefLabels } from "../src/lib/sample-brief";
 import { ThumbnailBrief, ThumbnailConcept, ConceptGenerationResult } from "../src/lib/types";
+import {
+  getConceptTextStyle,
+  getRecommendedTextStyle,
+  getResolvedTextStyle,
+  getTextMode,
+} from "../src/lib/text-overlay";
 
 // ── Mock concept data for tests ──
 
@@ -189,6 +195,51 @@ describe("buildPreviewImagePrompt", () => {
     expect(prompt).toContain("Text-free requirement");
     expect(prompt).toContain("do not render words, letters");
   });
+
+  it("asks the image model to draw exact text in generated mode", () => {
+    const prompt = buildPreviewImagePrompt(mockConcept, {
+      ...sampleBriefs[0],
+      textMode: "generated",
+      textStyle: "impact",
+    });
+    expect(prompt).toContain('render the exact headline "$10K GONE"');
+    expect(prompt).toContain("heavy uppercase sans-serif");
+    expect(prompt).toContain("spelling and punctuation must match exactly");
+  });
+});
+
+describe("text overlay modes and styles", () => {
+  it("keeps old briefs backward compatible", () => {
+    expect(getTextMode({ ...sampleBriefs[0], textMode: undefined, textOverlay: true })).toBe("post-process");
+    expect(getTextMode({ ...sampleBriefs[0], textMode: undefined, textOverlay: false })).toBe("none");
+  });
+
+  it("resolves recommended style from tone", () => {
+    expect(getRecommendedTextStyle("dramatic")).toBe("impact");
+    expect(getRecommendedTextStyle("educational")).toBe("editorial");
+    expect(getRecommendedTextStyle("curiosity")).toBe("minimal");
+    expect(getRecommendedTextStyle("funny")).toBe("banner");
+    expect(getResolvedTextStyle({ ...sampleBriefs[0], textStyle: "recommended" })).toBe("impact");
+  });
+
+  it("uses a valid AI-selected concept style and rejects unknown values", () => {
+    const recommendedBrief: ThumbnailBrief = { ...sampleBriefs[0], textStyle: "recommended" };
+    expect(
+      getConceptTextStyle(
+        { ...mockConcept, textOverlay: { ...mockConcept.textOverlay, style: "banner" } },
+        recommendedBrief
+      )
+    ).toBe("banner");
+    expect(
+      getConceptTextStyle(
+        {
+          ...mockConcept,
+          textOverlay: { ...mockConcept.textOverlay, style: "unknown" as "impact" },
+        },
+        recommendedBrief
+      )
+    ).toBe("impact");
+  });
 });
 
 // ── Concept shape ──
@@ -341,6 +392,33 @@ describe("Mock mode", () => {
     result.concepts.forEach((c) => {
       expect(c.textOverlay.text.length).toBeGreaterThan(0);
       expect(c.textOverlay.placement).not.toBe("none");
+    });
+  }, 10000);
+
+  it("generated text mode embeds the requested phrase and style in image prompts", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(
+      { ...sampleBriefs[0], textMode: "generated", textStyle: "banner" },
+      "mock"
+    );
+    result.concepts.forEach((c) => {
+      expect(c.textOverlay.text).toBeTruthy();
+      expect(c.imagePrompt).toContain(`"${c.textOverlay.text}"`);
+      expect(c.imagePrompt).toContain("solid high-contrast rectangular banner");
+      expect(c.platformNotes.toLowerCase()).toContain("experimental");
+    });
+  }, 10000);
+
+  it("post-process mode reserves negative space and avoids embedded lettering", async () => {
+    const { generateThumbnailConcepts } = await import("../src/lib/pollinations");
+    const result = await generateThumbnailConcepts(
+      { ...sampleBriefs[0], textMode: "post-process", textStyle: "editorial" },
+      "mock"
+    );
+    result.concepts.forEach((c) => {
+      expect(c.imagePrompt).toContain("clean negative space");
+      expect(c.imagePrompt).toContain("no embedded letters or words");
+      expect(c.platformNotes).toContain("editorial");
     });
   }, 10000);
 
