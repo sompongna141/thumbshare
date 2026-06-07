@@ -1,3 +1,17 @@
+## 2026-06-07 08:32 UTC
+
+**Focus:** Pollinations OAuth callback + product/deploy copy alignment
+
+**Shipped:**
+- Fixed OAuth redirect URI from `/` to `/studio`; the callback now lands where `api_key` is consumed, persisted, and removed from the address bar.
+- Extracted OAuth URL construction and hash parsing into tested helpers.
+- Updated landing metadata, homepage copy, README, deploy notes, QA, tasks, and state for selectable 3 / 4 / 6 / 8 concept counts and deterministic preview lettering.
+
+**Verification:**
+- 102/102 Vitest tests passing.
+- TypeScript lint passes.
+- OAuth helper test verifies an exact `/studio` callback and encoded API-key parsing.
+
 ## 2026-06-07 08:22 UTC
 
 **Focus:** Direction controls + variable concept count + malformed JSON recovery

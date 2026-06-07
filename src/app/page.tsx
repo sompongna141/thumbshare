@@ -22,7 +22,7 @@ export default function HomePage() {
             Thumbnails that stop the scroll
           </h1>
           <p className="hero-subtitle">
-            Turn a video title and angle into six scroll-stopping thumbnail
+            Turn a video title and angle into 3 to 8 scroll-stopping thumbnail
             concepts — complete with image prompts, color psychology, face
             expressions, and A/B test plans. Hand them to an editor or generate
             previews directly.
@@ -79,14 +79,14 @@ export default function HomePage() {
               <div className="step-num" aria-hidden="true">3</div>
               <h3 className="step-heading">Direction</h3>
               <p className="step-body">
-                Choose the emotional tone and any visual guardrails.
+                Choose tone, text mode, concept count, model, and visual guardrails.
               </p>
             </div>
             <div className="step-item">
               <div className="step-num" aria-hidden="true">4</div>
               <h3 className="step-heading">Concepts</h3>
               <p className="step-body">
-                Get six structured concept packs with prompts, colors, and A/B variants.
+                Get the exact number of structured concept packs you selected.
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function HomePage() {
           <h2 className="cta-title">Ready to stop guessing?</h2>
           <p className="cta-body">
             Connect your Pollinations key and turn your next video title into
-            six structured thumbnail concepts in under five minutes.
+            a structured thumbnail concept pack in under five minutes.
           </p>
           <Link href="/studio" className="hero-cta-primary cta-large">
             Open ThumbSnare Studio

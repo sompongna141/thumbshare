@@ -4,17 +4,17 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "ThumbSnare — YouTube Thumbnail Studio",
   description:
-    "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs with prompts, color psychology, and A/B test variants.",
+    "Turn a video title and angle into 3 to 8 thumbnail concept packs with prompts, exact text overlays, color psychology, and A/B test variants.",
   openGraph: {
     title: "ThumbSnare — YouTube Thumbnail Studio",
-    description: "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs with prompts, color psychology, and A/B test variants.",
+    description: "Generate 3 to 8 structured YouTube thumbnail concepts with prompts, exact text overlays, and A/B test variants.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "ThumbSnare — YouTube Thumbnail Studio",
-    description: "Turn a video title and angle into 6 scroll-stopping thumbnail concept packs.",
+    description: "Generate 3 to 8 structured YouTube thumbnail concepts.",
   },
 };
 

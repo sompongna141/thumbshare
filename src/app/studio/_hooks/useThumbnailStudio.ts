@@ -31,6 +31,10 @@ import {
   setStoredModel,
   setWizardDraft,
 } from "../_lib/studio-storage";
+import {
+  buildPollinationsLoginUrl,
+  extractPollinationsKey,
+} from "../_lib/pollinations-auth";
 
 const EMPTY_BRIEF: ThumbnailBrief = {
   videoTitle: "",
@@ -135,9 +139,8 @@ export function useThumbnailStudio(): UseThumbnailStudio {
   useEffect(() => {
     // 1. BYOP key
     const hash = typeof window !== "undefined" ? window.location.hash : "";
-    const match = hash.match(/api_key=([^&]+)/);
-    if (match) {
-      const key = decodeURIComponent(match[1]);
+    const key = extractPollinationsKey(hash);
+    if (key) {
       setStoredKey(key);
       setByop({ key, status: "connected" });
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -210,9 +213,7 @@ export function useThumbnailStudio(): UseThumbnailStudio {
 
   const loginUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
-    if (!pollinationsAppKey) return "";
-    const redirectUri = window.location.origin + "/";
-    return `https://auth.pollinations.ai/auth?client_id=${encodeURIComponent(pollinationsAppKey)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=api_key&response_type=token`;
+    return buildPollinationsLoginUrl(pollinationsAppKey, window.location.origin);
   }, [pollinationsAppKey]);
 
   const setSelectedModel = useCallback((m: string) => {

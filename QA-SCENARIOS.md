@@ -22,8 +22,8 @@
 
 ## Scenario 2: BYOP connect + disconnect
 1. Click **Connect Pollinations** → redirects to `auth.pollinations.ai`.
-2. After OAuth redirect, URL hash contains `api_key=...`.
-3. **Expected:** green dot appears, "Pollinations connected" shown.
+2. After OAuth, the browser returns to `/studio#api_key=...`.
+3. **Expected:** green dot appears, "Pollinations connected" is shown, and the key hash is immediately removed from the address bar.
 4. Click **Disconnect**.
 5. **Expected:** key cleared from localStorage, auth panel reverts to "Connect Pollinations".
 

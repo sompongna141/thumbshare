@@ -1,14 +1,15 @@
 # ThumbSnare — YouTube Thumbnail Studio
 
-Turn a video title and angle into 6 scroll-stopping thumbnail concept packs: image prompts, face expressions, text overlays, color psychology notes, and A/B test variants.
+Turn a video title and angle into 3, 4, 6, or 8 thumbnail concept packs: image prompts, face expressions, exact text overlays, color psychology notes, and A/B test variants.
 
 ## What it does
 
 1. Enter your video brief (title, angle, audience, tone).
-2. App generates 6 structured thumbnail concepts via Pollinations AI.
-3. Preview concept images generated on-demand.
-4. Copy individual concepts or export the full pack as JSON.
-5. Print a clean briefing sheet for your editor.
+2. Choose text or no-text mode, concept count, and image model in Direction.
+3. App generates the selected number of structured concepts via Pollinations AI.
+4. Preview images are generated on-demand; exact overlay lettering is rendered by the app.
+5. Copy individual concepts or export the full pack as JSON or Markdown.
+6. Print a clean briefing sheet for your editor.
 
 ## Stack
 
@@ -51,7 +52,7 @@ npm run build      # Production build
 
 - `POST /api/generate/concepts` — accepts `{ brief, clientKey }`, returns structured concepts + A/B plan.
 - `GET /api/pollinations/models` — returns available Pollinations image models.
-- BYOP auth: user connects via Pollinations OAuth at `auth.pollinations.ai`, token stored in `localStorage`.
+- BYOP auth: user connects via Pollinations OAuth at `auth.pollinations.ai`, returns to `/studio`, and the token is stored in `localStorage`.
 - Image previews: built as Pollinations image URLs with user key appended via `?key=`.
 
 ## Deployment

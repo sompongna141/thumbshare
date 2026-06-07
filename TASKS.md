@@ -61,7 +61,7 @@
 ## Phase 7 — Deploy readiness
 
 - [x] write README.md for the app
-- [x] verify build / lint / typecheck / tests pass (29/29 passing)
+- [x] verify build / lint / typecheck / tests pass (102/102 passing)
 - [x] write DEPLOY.md with env and Vercel steps
 - [x] initialize dedicated git repo (main branch)
 - [x] add /api/config route for runtime config (mock enabled, app key)
@@ -74,6 +74,7 @@
 - [x] move text overlay and image model controls to Direction
 - [x] add selectable concept count (3 / 4 / 6 / 8)
 - [x] harden JSON extraction and retry one malformed/truncated generation
+- [x] fix Pollinations OAuth callback to return to `/studio` and consume the key hash
 - [x] persist wizard draft (step + brief) to localStorage and restore on reload
 - [x] persist shortlist to localStorage and restore on reload
 - [x] add comfortable / compact density toggle for results grid with persistence

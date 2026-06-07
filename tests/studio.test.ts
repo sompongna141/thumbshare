@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { isBriefValid, briefCompletion } from "../src/app/studio/_lib/brief-validation";
 import {
+  buildPollinationsLoginUrl,
+  extractPollinationsKey,
+} from "../src/app/studio/_lib/pollinations-auth";
+import {
   BriefHistoryEntry,
   saveBriefHistory,
   getBriefHistory,
@@ -29,6 +33,30 @@ class MemoryStorage {
 }
 const memStorage = new MemoryStorage();
 Object.defineProperty(globalThis, "localStorage", { value: memStorage, configurable: true });
+
+describe("Pollinations auth", () => {
+  it("redirects OAuth back to the studio where the hash is consumed", () => {
+    const loginUrl = new URL(
+      buildPollinationsLoginUrl("pk_test", "https://thumbsnare.example")
+    );
+    expect(loginUrl.origin + loginUrl.pathname).toBe("https://auth.pollinations.ai/auth");
+    expect(loginUrl.searchParams.get("client_id")).toBe("pk_test");
+    expect(loginUrl.searchParams.get("redirect_uri")).toBe(
+      "https://thumbsnare.example/studio"
+    );
+    expect(loginUrl.searchParams.get("scope")).toBe("api_key");
+  });
+
+  it("extracts and decodes an API key from the OAuth hash", () => {
+    expect(extractPollinationsKey("#api_key=sk_key%2Fwith%2Bchars&state=ok")).toBe(
+      "sk_key/with+chars"
+    );
+  });
+
+  it("returns null for a hash without an API key", () => {
+    expect(extractPollinationsKey("#state=ok")).toBeNull();
+  });
+});
 
 // ── Brief validation ──
 

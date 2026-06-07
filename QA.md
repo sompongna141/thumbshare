@@ -31,7 +31,7 @@
 - [x] BYOP key path is wired through server-side API route (not client-side)
 - [x] lint passes (tsc --noEmit clean)
 - [x] typecheck passes (via build)
-- [x] test suite passes (99/99 Vitest tests)
+- [x] test suite passes (102/102 Vitest tests)
 - [x] env handling is documented (.env.example + DEPLOY.md)
 - [x] prompt scaffolding has anti-generic word filter
 - [x] A/B plan is dynamically generated with specific concept pairings and visual variable differences
@@ -40,6 +40,7 @@
 - [x] extractJson handles fenced JSON, surrounding prose, nested payloads, trailing commas, malformed, empty, and truncated responses
 - [x] generation retries once with a shorter structured prompt when the model returns incomplete JSON
 - [x] with-text previews render exact overlay copy and placement in the UI instead of relying on image-model spelling
+- [x] Pollinations OAuth redirects back to `/studio`, where the returned key hash is consumed and removed from the URL
 
 ## Product quality
 
@@ -62,7 +63,7 @@
 
 These require a real Pollinations user key and/or production deployment to confirm:
 
-1. End-to-end concept generation returns valid JSON with 6 concepts via live LLM
+1. End-to-end concept generation returns the selected concept count via live LLM
 2. Image preview URLs load successfully with authenticated key on gen.pollinations.ai/image/
 3. Per-concept regeneration replaces the targeted concept via live API (prompt injection added, needs live validation)
 4. Export (JSON + clipboard + print + markdown) produces correct output in production

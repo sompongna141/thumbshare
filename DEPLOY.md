@@ -6,7 +6,7 @@
 
 ## App overview
 
-ThumbSnare is a YouTube thumbnail strategy workstation. Users enter a video brief and get 6 structured thumbnail concept packs with image prompts, face expressions, text overlays, color psychology, A/B test plans, and platform notes. Concepts are generated via the Pollinations text API and previewed via Pollinations image URLs.
+ThumbSnare is a YouTube thumbnail strategy workstation. Users enter a video brief and generate 3, 4, 6, or 8 structured concept packs with image prompts, face expressions, deterministic text overlays, color psychology, A/B test plans, and platform notes.
 
 ## Expected env vars
 
@@ -32,7 +32,7 @@ POLLINATIONS_ALLOW_MOCK=false
 - **API route:** `GET /api/pollinations/models` — returns available Pollinations image models
 - **API route:** `GET /api/config` — returns runtime config (mock enabled, app key presence) without leaking secrets
 - `not-found.tsx` — friendly 404 page with redirect
-- **BYOP auth:** User authenticates via Pollinations OAuth at `auth.pollinations.ai`, token returned in URL hash as `api_key=`, stored in localStorage
+- **BYOP auth:** User authenticates via Pollinations OAuth at `auth.pollinations.ai`, returns to `/studio` with `api_key=` in the URL hash, then the key is stored in localStorage and removed from the URL
 - **Image previews:** Built client-side as Pollinations image URLs with `?key=` for auth
 - **Export:** JSON download + clipboard copy + print-friendly CSS
 
@@ -41,7 +41,7 @@ POLLINATIONS_ALLOW_MOCK=false
 ```bash
 npm install
 npm run lint        # TypeScript typecheck via tsc --noEmit
-npm test            # Vitest suite (29 tests)
+npm test            # Vitest suite (102 tests)
 npm run build       # Production build (Next.js standalone output)
 npm run start       # Start on port 3100 (or set PORT)
 npm run dev         # Dev server on port 3100
@@ -59,7 +59,7 @@ npm run dev         # Dev server on port 3100
 
 - [x] Build passes
 - [x] Lint/typecheck passes
-- [x] Test suite passes (29/29)
+- [x] Test suite passes (102/102)
 - [x] BYOP auth flow UI present (connect → disconnect)
 - [x] Export features work (JSON, clipboard, print)
 - [x] Error states are handled gracefully
