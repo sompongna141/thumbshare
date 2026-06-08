@@ -16,13 +16,11 @@ export const metadata: Metadata = {
     title: "ThumbSnare — YouTube Thumbnail Studio",
     description: "Generate 3 to 8 structured YouTube thumbnail concepts.",
   },
-  // App-level meta read by the studio client to identify this app to
-  // Pollinations. Rendered by the App Router metadata system — DO NOT
-  // add a manual <head> element in this file, that causes SSR/CSR
-  // hydration mismatches in Next.js 15.
-  other: process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY
-    ? { "pollinations-app-key": process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY }
-    : undefined,
+  // NOTE: do not add a <head> element or manual <meta> tags in this
+  // file. Next.js manages <head> via the metadata export above, and
+  // any conditional/runtime meta tag in JSX causes SSR/CSR hydration
+  // mismatches. The Pollinations app key is read at build time via
+  // `process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY` in the client code.
 };
 
 export const viewport: Viewport = {

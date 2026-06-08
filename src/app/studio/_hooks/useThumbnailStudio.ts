@@ -201,19 +201,33 @@ export function useThumbnailStudio(): UseThumbnailStudio {
       .catch(() => setSelectedModelState(DEFAULT_MODEL));
   }, []);
 
-  /* App key + login URL (read from head meta) */
-  const pollinationsAppKey = useMemo(
-    () =>
-      typeof window !== "undefined"
-        ? (document.querySelector('meta[name="pollinations-app-key"]') as HTMLMetaElement)?.content || ""
-        : "",
-    []
-  );
+  /* App key + login URL.
+   * `NEXT_PUBLIC_*` env vars are inlined into the client bundle at build
+   * time by Next.js, so the app key is available synchronously on the
+   * server, on the client, and during hydration — no DOM query, no
+   * meta-tag race, no SSR/CSR mismatch.
+   *
+   * The login URL needs `window.location.origin`, which doesn't exist
+   * during SSR. We use the build-time env `NEXT_PUBLIC_SITE_ORIGIN` as
+   * the SSR default (so server-rendered HTML matches the real client
+   * URL) and then upgrade to the live origin after mount. The env
+   * default MUST be the deployed origin or Pollinations will reject
+   * the redirect_uri. */
+  const pollinationsAppKey = process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY || "";
 
-  const loginUrl = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    return buildPollinationsLoginUrl(pollinationsAppKey, window.location.origin);
-  }, [pollinationsAppKey]);
+  const [siteOrigin, setSiteOrigin] = useState<string>(
+    process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://thumbsnare.vercel.app"
+  );
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.origin) {
+      setSiteOrigin(window.location.origin);
+    }
+  }, []);
+
+  const loginUrl = useMemo(
+    () => buildPollinationsLoginUrl(pollinationsAppKey, siteOrigin),
+    [pollinationsAppKey, siteOrigin]
+  );
 
   const setSelectedModel = useCallback((m: string) => {
     setSelectedModelState(m);

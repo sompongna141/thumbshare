@@ -55,6 +55,7 @@ upsert_env() {
 }
 
 upsert_env NEXT_PUBLIC_POLLINATIONS_APP_KEY "pk_4vwdCAbLf8wWIOJE" "production,preview,development"
+upsert_env NEXT_PUBLIC_SITE_ORIGIN "https://thumbsnare.vercel.app" "production,preview,development"
 upsert_env POLLINATIONS_TEXT_MODEL "openai" "production,preview,development"
 upsert_env POLLINATIONS_ALLOW_MOCK "false" "production,preview,development"
 

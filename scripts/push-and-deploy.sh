@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 BRANCH="${BRANCH:-main}"
 REMOTE="${REMOTE:-origin}"
 
-if ! git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+if ! git show-ref --verify --quiet "refs/heads/$BRANCH" 2>/dev/null; then
   echo "✗ Branch '$BRANCH' does not exist locally." >&2
   exit 1
 fi
