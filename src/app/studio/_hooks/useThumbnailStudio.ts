@@ -67,8 +67,6 @@ interface UseThumbnailStudio {
   imageModels: PollinationsModel[];
   selectedModel: string;
   setSelectedModel: (m: string) => void;
-  manualKeyInput: string;
-  setManualKeyInput: (s: string) => void;
   imgErrorMap: Record<string, boolean>;
   fallbackModelMap: Record<string, string>;
   starred: Set<string>;
@@ -122,7 +120,6 @@ export function useThumbnailStudio(): UseThumbnailStudio {
   const [copied, setCopied] = useState<string | null>(null);
   const [imageModels, setImageModels] = useState<PollinationsModel[]>([]);
   const [selectedModel, setSelectedModelState] = useState<string>(DEFAULT_MODEL);
-  const [manualKeyInput, setManualKeyInput] = useState("");
   const [imgErrorMap, setImgErrorMap] = useState<Record<string, boolean>>({});
   const [fallbackModelMap, setFallbackModelMap] = useState<Record<string, string>>({});
   const [starred, setStarred] = useState<Set<string>>(new Set());
@@ -254,13 +251,11 @@ export function useThumbnailStudio(): UseThumbnailStudio {
     if (!k) return;
     setStoredKey(k);
     setByop({ key: k, status: "connected" });
-    setManualKeyInput("");
   }, []);
 
   const handleDisconnect = useCallback(() => {
     clearStoredKey();
     setByop({ key: null, status: "idle" });
-    setManualKeyInput("");
   }, []);
 
   const handleGenerate = useCallback(async () => {
@@ -501,8 +496,6 @@ export function useThumbnailStudio(): UseThumbnailStudio {
     imageModels,
     selectedModel,
     setSelectedModel,
-    manualKeyInput,
-    setManualKeyInput,
     imgErrorMap,
     fallbackModelMap,
     starred,

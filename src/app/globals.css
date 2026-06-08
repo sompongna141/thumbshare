@@ -362,13 +362,8 @@ button { font: inherit; }
 .link-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline; font-size: inherit; padding: 0; }
 .link-btn:hover { color: var(--accent-hover); }
 
-.manual-key-band { display: flex; justify-content: center; padding: var(--space-md) var(--space-xl) 0; max-width: 900px; margin: 0 auto; width: 100%; }
-.manual-key-row { display: flex; gap: var(--space-sm); align-items: center; width: 100%; }
-.manual-key-row input { flex: 1; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--space-xs) var(--space-md); font-size: var(--text-sm); outline: none; transition: border-color var(--duration-fast); }
-.manual-key-row input:focus { border-color: var(--accent); }
-
 @media print {
-  .top-bar, .step-indicator, .nav-row, .card-actions, .export-bar, .shortlist-bar, .empty-state, .manual-key-band { display: none !important; }
+  .top-bar, .step-indicator, .nav-row, .card-actions, .export-bar, .shortlist-bar, .empty-state { display: none !important; }
   body { background: #fff; color: #000; }
   .concept-card { border: 1px solid #ccc; background: #fff; break-inside: avoid; }
   .card-body .section-title { color: #b45309; }

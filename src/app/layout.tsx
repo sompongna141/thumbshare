@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "ThumbSnare — YouTube Thumbnail Studio",
@@ -16,6 +16,18 @@ export const metadata: Metadata = {
     title: "ThumbSnare — YouTube Thumbnail Studio",
     description: "Generate 3 to 8 structured YouTube thumbnail concepts.",
   },
+  // App-level meta read by the studio client to identify this app to
+  // Pollinations. Rendered by the App Router metadata system — DO NOT
+  // add a manual <head> element in this file, that causes SSR/CSR
+  // hydration mismatches in Next.js 15.
+  other: process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY
+    ? { "pollinations-app-key": process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY }
+    : undefined,
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -23,12 +35,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const appKey = process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY || "";
   return (
     <html lang="en">
-      <head>
-        {appKey && <meta name="pollinations-app-key" content={appKey} />}
-      </head>
       <body>{children}</body>
     </html>
   );

@@ -4,7 +4,6 @@ import React from "react";
 import { useThumbnailStudio } from "./_hooks/useThumbnailStudio";
 import { TopBar } from "./_components/TopBar";
 import { StepIndicator } from "./_components/StepIndicator";
-import { ManualKeyBand } from "./_components/ManualKeyBand";
 import { HookStep } from "./_components/HookStep";
 import { AudienceStep } from "./_components/AudienceStep";
 import { DirectionStep } from "./_components/DirectionStep";
@@ -20,13 +19,6 @@ export default function StudioPage() {
         loginUrl={s.loginUrl}
         onDisconnect={s.handleDisconnect}
         title="ThumbSnare — YouTube Thumbnail Studio"
-      />
-
-      <ManualKeyBand
-        visible={s.byop.status !== "connected"}
-        value={s.manualKeyInput}
-        onChange={s.setManualKeyInput}
-        onUse={() => s.handleConnectKey(s.manualKeyInput)}
       />
 
       <StepIndicator current={s.step} />
