@@ -39,12 +39,21 @@ describe("Pollinations auth", () => {
     const loginUrl = new URL(
       buildPollinationsLoginUrl("pk_test", "https://thumbsnare.example")
     );
-    expect(loginUrl.origin + loginUrl.pathname).toBe("https://auth.pollinations.ai/auth");
+    expect(loginUrl.origin + loginUrl.pathname).toBe(
+      "https://enter.pollinations.ai/authorize"
+    );
     expect(loginUrl.searchParams.get("client_id")).toBe("pk_test");
     expect(loginUrl.searchParams.get("redirect_uri")).toBe(
       "https://thumbsnare.example/studio"
     );
-    expect(loginUrl.searchParams.get("scope")).toBe("api_key");
+    // Pollinations BYOP does not use OAuth `scope` or `response_type` —
+    // the key is returned in the URL fragment as `api_key=...`.
+    expect(loginUrl.searchParams.get("scope")).toBeNull();
+    expect(loginUrl.searchParams.get("response_type")).toBeNull();
+    // `state` should be a non-empty opaque value (CSRF protection).
+    const state = loginUrl.searchParams.get("state");
+    expect(state).toBeTruthy();
+    expect(state!.length).toBeGreaterThan(4);
   });
 
   it("extracts and decodes an API key from the OAuth hash", () => {

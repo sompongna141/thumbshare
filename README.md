@@ -52,7 +52,7 @@ npm run build      # Production build
 
 - `POST /api/generate/concepts` — accepts `{ brief, clientKey }`, returns structured concepts + A/B plan.
 - `GET /api/pollinations/models` — returns available Pollinations image models.
-- BYOP auth: user connects via Pollinations OAuth at `auth.pollinations.ai`, returns to `/studio`, and the token is stored in `localStorage`.
+- BYOP auth: user connects via Pollinations OAuth at `enter.pollinations.ai/authorize`, returns to `/studio`, and the token is stored in `localStorage`.
 - Image previews: built as Pollinations image URLs with user key appended via `?key=`.
 - Text modes: deterministic post-processing (recommended), generated-in-image (experimental), or text-free.
 - Text styles: AI recommended, Impact, Editorial, Minimal, and Banner.
