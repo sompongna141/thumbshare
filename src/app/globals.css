@@ -75,7 +75,12 @@ button { font: inherit; }
 
 .top-bar-left { display: flex; align-items: center; gap: var(--space-lg); }
 
-.logo { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.03em; user-select: none; }
+.logo {
+  display: inline-flex; align-items: center;
+  font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.03em;
+  user-select: none; cursor: pointer;
+}
+.logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius-xs); }
 .logo-accent { color: var(--accent); }
 
 .top-bar-right { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }

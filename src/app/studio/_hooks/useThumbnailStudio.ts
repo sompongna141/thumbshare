@@ -51,6 +51,7 @@ const EMPTY_BRIEF: ThumbnailBrief = {
 };
 
 const DEFAULT_MODEL = "sana";
+const DEFAULT_POLLINATIONS_APP_KEY = "pk_4vwdCAbLf8wWIOJE";
 
 interface UseThumbnailStudio {
   /* state */
@@ -202,27 +203,42 @@ export function useThumbnailStudio(): UseThumbnailStudio {
   }, []);
 
   /* App key + login URL.
-   * `NEXT_PUBLIC_*` env vars are inlined into the client bundle at build
-   * time by Next.js, so the app key is available synchronously on the
-   * server, on the client, and during hydration — no DOM query, no
-   * meta-tag race, no SSR/CSR mismatch.
-   *
-   * The login URL needs `window.location.origin`, which doesn't exist
-   * during SSR. We use the build-time env `NEXT_PUBLIC_SITE_ORIGIN` as
-   * the SSR default (so server-rendered HTML matches the real client
-   * URL) and then upgrade to the live origin after mount. The env
-   * default MUST be the deployed origin or Pollinations will reject
-   * the redirect_uri. */
-  const pollinationsAppKey = process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY || "";
+   * The app key is a publishable Pollinations client id, not a spend key.
+   * Keep a code fallback so Connect still works if deployment env is missing. */
+  const bundledPollinationsAppKey =
+    process.env.NEXT_PUBLIC_POLLINATIONS_APP_KEY || DEFAULT_POLLINATIONS_APP_KEY;
+  const [runtimePollinationsAppKey, setRuntimePollinationsAppKey] = useState("");
+  const pollinationsAppKey = bundledPollinationsAppKey || runtimePollinationsAppKey;
 
   const [siteOrigin, setSiteOrigin] = useState<string>(
     process.env.NEXT_PUBLIC_SITE_ORIGIN || "https://thumbsnare.vercel.app"
   );
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.origin) {
       setSiteOrigin(window.location.origin);
     }
   }, []);
+
+  useEffect(() => {
+    if (bundledPollinationsAppKey) return;
+
+    let cancelled = false;
+    fetch("/api/config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((config: { appKey?: string } | null) => {
+        if (!cancelled && config?.appKey) {
+          setRuntimePollinationsAppKey(config.appKey);
+        }
+      })
+      .catch(() => {
+        // Keep the Connect action disabled if config cannot be loaded.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [bundledPollinationsAppKey]);
 
   const loginUrl = useMemo(
     () => buildPollinationsLoginUrl(pollinationsAppKey, siteOrigin),

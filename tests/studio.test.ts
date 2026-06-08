@@ -51,9 +51,13 @@ describe("Pollinations auth", () => {
     expect(loginUrl.searchParams.get("scope")).toBeNull();
     expect(loginUrl.searchParams.get("response_type")).toBeNull();
     // `state` should be a non-empty opaque value (CSRF protection).
-    const state = loginUrl.searchParams.get("state");
-    expect(state).toBeTruthy();
-    expect(state!.length).toBeGreaterThan(4);
+    expect(loginUrl.searchParams.get("state")).toBe("thumbsnare");
+  });
+
+  it("builds a deterministic login URL for SSR and hydration", () => {
+    const first = buildPollinationsLoginUrl("pk_test", "https://thumbsnare.example");
+    const second = buildPollinationsLoginUrl("pk_test", "https://thumbsnare.example");
+    expect(first).toBe(second);
   });
 
   it("extracts and decodes an API key from the OAuth hash", () => {

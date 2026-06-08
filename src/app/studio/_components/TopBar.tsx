@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 import type { ByopState } from "@/lib/types";
 
@@ -19,9 +20,9 @@ export function TopBar({
   return (
     <header className="top-bar">
       <div className="top-bar-left">
-        <div className="logo" title={title}>
+        <Link className="logo" href="/" title={title} aria-label="Go to ThumbSnare homepage">
           <span className="logo-accent">Thumb</span>Snare
-        </div>
+        </Link>
       </div>
       <div className="top-bar-right">
         <div className="auth-chip">
@@ -32,10 +33,16 @@ export function TopBar({
               : "Not connected"}
           </span>
         </div>
-        {byop.status !== "connected" && loginUrl && (
-          <a className="btn primary small" href={loginUrl}>
-            Connect
-          </a>
+        {byop.status !== "connected" && (
+          loginUrl ? (
+            <a className="btn primary small" href={loginUrl}>
+              Connect
+            </a>
+          ) : (
+            <button className="btn primary small" disabled title="Loading Pollinations connection">
+              Connect
+            </button>
+          )
         )}
         {byop.status === "connected" && (
           <button className="btn secondary small" onClick={onDisconnect}>
