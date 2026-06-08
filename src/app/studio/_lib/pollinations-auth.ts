@@ -1,4 +1,4 @@
-const POLLINATIONS_AUTH_URL = "https://auth.pollinations.ai/auth";
+const POLLINATIONS_AUTH_URL = "https://enter.pollinations.ai/authorize";
 
 export function extractPollinationsKey(hash: string): string | null {
   const fragment = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -12,7 +12,10 @@ export function buildPollinationsLoginUrl(appKey: string, origin: string): strin
   const authUrl = new URL(POLLINATIONS_AUTH_URL);
   authUrl.searchParams.set("client_id", appKey.trim());
   authUrl.searchParams.set("redirect_uri", new URL("/studio", origin).toString());
-  authUrl.searchParams.set("scope", "api_key");
-  authUrl.searchParams.set("response_type", "token");
+  // `state` is optional but recommended by the Pollinations docs for CSRF
+  // protection. The hash callback already echoes it back; we currently
+  // don't enforce it, but passing a unique value per click is harmless
+  // and future-proofs the integration.
+  authUrl.searchParams.set("state", `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
   return authUrl.toString();
 }
